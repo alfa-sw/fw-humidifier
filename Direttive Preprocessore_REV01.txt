@@ -1,0 +1,21 @@
+BOOT LOADER
+
+__DEBUG -> Disabilita WatchDog
+
+FORCE_SLAVE_47 --> NON legge i Dip Switch, ma legge sempre indirizzo 47
+HUMIDIFIER e HARDCODED_ADDRESS (insieme)--> Assegna indirizzo fisso alla Slave, 
+					    senza ricavarlo dai DipSwitch
+
+---------------------------------------------------------------------------
+APPLICATIVO
+
+DEBUG_SLAVE   --> Modalità Debug. Watchdog disabilitato
+NO_BOOTLOADER --> Assenza di BootLoader
+_HUMIDIFIER   --> Indirizzo Hardcoded "_HUMIDIFIER"
+
+Combinazioni Funzionamento:
+
+SI "NO_BOOTLOADER" AND SI "_HUMIDIFIER" --> slave_id = HUMIDIFIER (Hardcoded)
+SI "NO_BOOTLOADER" AND NO "_HUMIDIFIER" --> slave_id = Dip Switch (NO Hardcoded)
+NO "NO_BOOTLOADER" AND SI "_HUMIDIFIER" --> slave_id = HUMIDIFIER (Hardcoded)
+NO "NO_BOOTLOADER" AND NO "_HUMIDIFIER" --> slave_id = SLAVE_ADDR() (Impostato nel BootLoader)
