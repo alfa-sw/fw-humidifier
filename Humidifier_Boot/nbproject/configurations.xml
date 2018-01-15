@@ -24,7 +24,7 @@
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
                    projectFiles="true">
-      <itemPath>p24FJ64GA704_NO BOOT.gld</itemPath>
+      <itemPath>p24FJ64GA704.gld</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -47,6 +47,7 @@
   <sourceRootList>
     <Elem>.</Elem>
     <Elem>../../../../../Program Files (x86)/Microchip/xc16/v1.33/support/PIC24F/h</Elem>
+    <Elem>../Humidifier_Program</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>

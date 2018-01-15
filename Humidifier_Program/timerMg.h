@@ -53,10 +53,10 @@
    /* 7 */ T_HUM_CAP_CLOSED_ON,	
    /* 8 */ T_HUM_CAP_CLOSED_PERIOD,
    /* 9 */ T_DOS_PERIOD,
-   /* 10 */
-   /* 11 */
-   /* 12 */
-   /* 13 */
+   /* 10 */T_HARD_RESET,
+   /* 11 */T_SHT30_MEASUREMENT,
+   /* 12 */T_SHT30_WRITE_TIMEOUT,
+   /* 13 */T_SHT30_HEATER,
    /* 14 */
    N_TIMERS
  };
@@ -75,10 +75,14 @@
 /* 8 */ # define DELAY_HUM_CAP_CLOSED_PERIOD 500
 // Base Timer Dosing Temperature Activation Period : 1"
 /* 9 */	# define DELAY_DOS_PERIOD	500			
-/* 10 */
-/* 11 */
-/* 12 */
-/* 13 */
+// Waiting Reset Time: 2 msec
+/* 10 */# define DELAY_HARD_RESET 1  
+// Waiting SHT30 Measurement: 8 msec
+/* 11 */# define DELAY_SHT30_MEASUREMENT 4
+// Timeout on SHT30 Write Command: 4 msec
+/* 12 */# define DELAY_SHT30_TIMEOUT 2
+// Wait 10" with HEATER ON
+ /* 13 */# define DELAY_WAIT_HEATER 5000
 /* 14 */
 /* 15 */	
 

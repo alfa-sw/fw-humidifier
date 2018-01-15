@@ -13,6 +13,7 @@
       <itemPath>timerMg.h</itemPath>
       <itemPath>typedef.h</itemPath>
       <itemPath>../../../../../Program Files (x86)/Microchip/xc16/v1.33/support/PIC24F/h/p24FJ64GA704.h</itemPath>
+      <itemPath>i2c1.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -28,6 +29,7 @@
       <itemPath>serialCom.c</itemPath>
       <itemPath>statusmanager.c</itemPath>
       <itemPath>timerMg.c</itemPath>
+      <itemPath>i2c1.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

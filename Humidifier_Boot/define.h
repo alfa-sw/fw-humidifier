@@ -19,7 +19,9 @@
 #define START_APPL_ADDRESS 0x00002000L
 #define END_APPL_ADDRESS   0x0000AF00L
 
-#define EXPECTED_FIRST_PAGE_APPL (8) /* starts @ 0x1F00 */
+// 0 - 400 --> PG0 / 400 - 800 --> PG1 / 800 - C00 --> PG2 / C00 - 1000 --> PG3 / 1000 - 1400 --> PG4 / 1400 - 1800 --> PG5 / 1800 - 1C00 --> PG6
+// 1C00 - 2000 --> PG7 / 2000 - 2400 --> PG8
+#define EXPECTED_FIRST_PAGE_APPL (8) /* starts @ 0x2000 */
 #define FIRST_PG_APPL (START_APPL_ADDRESS / FLASH_PAGE_WORD_LENGTH)
 #if FIRST_PG_APPL != EXPECTED_FIRST_PAGE_APPL
 #  warning First application page does not not match expected value. Check define.h

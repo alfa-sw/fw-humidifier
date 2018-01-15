@@ -21,10 +21,9 @@
 
 /* -- Data memory macros ----------------------------------------------------- */
 
+#define __APPL_DATA_BASE (0x1000)
 
-#define __APPL_DATA_BASE (0x800)
-
-#define __APPL_DATA_END  (0xFFF)
+#define __APPL_DATA_END  (0x4800)
 
 /* This location is used to forward the 485 index to the application. */
 #define __SLAVE_INDEX_ADDR (__APPL_DATA_BASE - 0x2)
@@ -32,5 +31,6 @@
 /* -- Interrupt handlers ----------------------------------------------------- */
 #define  __APPL_T1     (__APPL_CODE_BASE + 0x1A)  // 0x201A 
 #define  __APPL_U1RX1  (__APPL_CODE_BASE + 0x24)  // 0x2024 
-#define  __APPL_U1TX1  (__APPL_CODE_BASE + 0x2E)  // 0x202E 
+#define  __APPL_U1TX1  (__APPL_CODE_BASE + 0x2E)  // 0x202E
+#define  __APPL_MI2C1  (__APPL_CODE_BASE + 0x38)  // 0x2038 
 #endif /* MEM_H_DEFINED */

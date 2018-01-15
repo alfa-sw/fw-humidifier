@@ -50,17 +50,18 @@ void InitTMR(void)
 	unsigned char i;
 	
 	//Timer 1 controls position/speed controller sample time
-	TMR1 = 0;                               // Resetting TIMER
-	// Filippo - modifica per far scattare l'interrupt ogni ms
-	//  PR1 = SPEED_CONTROL_RATE_TIMER; // speed controller rate
-	PR1 = 5000; 			// con 40MIPS scatta ogni ms
-	T1CON = 0x0000;                 // reset timer configuration
+	TMR1 = 0;  // Resetting TIMER
+	//  PR1 = SPEED_CONTROL_RATE_TIMER;
+    // PR1 x PRESCALER (= 8) x 2 / FCY (=16MIPS) = 2msec
+	PR1 = 2000; 			// with 16MIPS interrupt every 2 ms
+	T1CON = 0x0000;         // Reset timer configuration
 	T1CONbits.TCKPS = 1;    // 1 = 1:8 prescaler
 
-	IPC0bits.T1IP = 3;              // Set Timer 1 Interrupt Priority Level
-	IFS0bits.T1IF = 0;              // Clear Timer1 Interrupt Flag
-	IEC0bits.T1IE = 1;              // Enable Timer1 interrupt
-	T1CONbits.TON = 1;              // Enable Timer1
+	IPC0bits.T1IP = 3;      // Set Timer 1 Interrupt Priority Level
+	IFS0bits.T1IF = 0;      // Clear Timer1 Interrupt Flag
+	IEC0bits.T1IE = 1;      // Enable Timer1 interrupt
+	T1CONbits.TON = 1;      // Enable Timer1 with prescaler settings at 1:1 and
+                            //clock source set to the internal instruction cycle
 
 	for (i=0;i<N_TIMERS;i++)
 	{

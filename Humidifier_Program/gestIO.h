@@ -67,6 +67,7 @@ typedef union {
 extern void initIO(void);
 extern void gestioneIO(void);
 extern unsigned char getWaterLevel(void);
+extern void INTERRUPT_Initialize(void);
 
 #endif
 

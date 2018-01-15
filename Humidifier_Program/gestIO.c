@@ -45,9 +45,40 @@ static DigInStatusType OutputFilter;
 static unsigned short FilterSensorInput(DigInStatusType InputFilter);
 void readIn(void);
 
-
 void initIO(void)
 {
+    /****************************************************************************
+     * Setting the Output Latch SFR(s)
+     ***************************************************************************/
+    LATA = 0x0000;
+    LATB = 0x0000;
+    LATC = 0x0000;
+
+    /****************************************************************************
+     * Setting the Weak Pull Up and Weak Pull Down SFR(s)
+     ***************************************************************************/
+    IOCPDA = 0x0000;
+    IOCPDB = 0x0000;
+    IOCPDC = 0x0000;
+    IOCPUA = 0x0000;
+    IOCPUB = 0x0000;
+    IOCPUC = 0x0000;
+
+    /****************************************************************************
+     * Setting the Open Drain SFR(s)
+     ***************************************************************************/
+    ODCA = 0x0000;
+    ODCB = 0x0000;
+    ODCC = 0x0000;
+
+    /****************************************************************************
+     * Setting the Analog/Digital Configuration SFR(s)
+     ***************************************************************************/
+    // Set AN0 and AN1
+    ANSA = 0x0003;
+    ANSB = 0x0000;
+    ANSC = 0x0000;
+
     // Set as Digital I/O
     ANSBbits.ANSB2 = 0; // RB2
     ANSBbits.ANSB3 = 0; // RB3
@@ -56,7 +87,13 @@ void initIO(void)
     ANSCbits.ANSC1 = 0; // RC1      
     ANSCbits.ANSC2 = 0; // RC2       
     
+    /****************************************************************************
+     * Setting the GPIO Direction SFR(s)
+     ***************************************************************************/
     // Initialization function to define IO
+    //TRISA = 0x069F;
+    //TRISB = 0xA2E4;
+    //TRISC = 0x03FF;
 	TRISBbits.TRISB0 = OUTPUT; // UART_DE
 	TRISBbits.TRISB1 = OUTPUT; // TMP_RESET
 	TRISBbits.TRISB2 = INPUT;  // TMP_ALERT 
@@ -84,6 +121,20 @@ void initIO(void)
 	TRISAbits.TRISA2 = INPUT; // OSC0
 	TRISAbits.TRISA3 = INPUT; // OSC1
 	TRISAbits.TRISA8 = OUTPUT;// LED	
+}
+
+void INTERRUPT_Initialize (void)
+{
+    // Enable nested interrupts
+    INTCON1bits.NSTDIS = 0;
+
+    //    MICI: MI2C1 - I2C1 Master Events
+    //    Priority: 1
+    IPC4bits.MI2C1IP = 1;
+        
+    //    TI: T1 - Timer1
+    //    Priority: 1
+    IPC0bits.T1IP = 1;    
 }
 
 void gestioneIO(void)

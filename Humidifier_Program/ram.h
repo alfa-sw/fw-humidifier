@@ -1,4 +1,5 @@
 #include "typedef.h"
+#include <xc.h>
 
 #ifdef RAM_EXTERN_DISABLE
 #   define RAM_EXTERN
@@ -132,4 +133,13 @@ RAM_EXTERN status_t OldStatus;
 RAM_EXTERN PeripheralAct_t PeripheralAct;
 RAM_EXTERN HumidifierAct_t HumidifierAct;
 
+RAM_EXTERN unsigned int reset_procedure;
+RAM_EXTERN unsigned int Status_I2C;
+RAM_EXTERN unsigned char Start_New_Measurement;
+RAM_EXTERN unsigned char Sensor_Measurement_Error;
+
+RAM_EXTERN unsigned long SHT30_Temperature;
+RAM_EXTERN unsigned long SHT30_Humidity;
+
+RAM_EXTERN uint16_t SHT30_DeviceAddress;
 

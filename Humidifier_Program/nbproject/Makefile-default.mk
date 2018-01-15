@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=gestIO.c main.c ram.c serialCom.c statusmanager.c timerMg.c
+SOURCEFILES_QUOTED_IF_SPACED=gestIO.c main.c ram.c serialCom.c statusmanager.c timerMg.c i2c1.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/gestIO.o ${OBJECTDIR}/main.o ${OBJECTDIR}/ram.o ${OBJECTDIR}/serialCom.o ${OBJECTDIR}/statusmanager.o ${OBJECTDIR}/timerMg.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/gestIO.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/ram.o.d ${OBJECTDIR}/serialCom.o.d ${OBJECTDIR}/statusmanager.o.d ${OBJECTDIR}/timerMg.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/gestIO.o ${OBJECTDIR}/main.o ${OBJECTDIR}/ram.o ${OBJECTDIR}/serialCom.o ${OBJECTDIR}/statusmanager.o ${OBJECTDIR}/timerMg.o ${OBJECTDIR}/i2c1.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/gestIO.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/ram.o.d ${OBJECTDIR}/serialCom.o.d ${OBJECTDIR}/statusmanager.o.d ${OBJECTDIR}/timerMg.o.d ${OBJECTDIR}/i2c1.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/gestIO.o ${OBJECTDIR}/main.o ${OBJECTDIR}/ram.o ${OBJECTDIR}/serialCom.o ${OBJECTDIR}/statusmanager.o ${OBJECTDIR}/timerMg.o
+OBJECTFILES=${OBJECTDIR}/gestIO.o ${OBJECTDIR}/main.o ${OBJECTDIR}/ram.o ${OBJECTDIR}/serialCom.o ${OBJECTDIR}/statusmanager.o ${OBJECTDIR}/timerMg.o ${OBJECTDIR}/i2c1.o
 
 # Source Files
-SOURCEFILES=gestIO.c main.c ram.c serialCom.c statusmanager.c timerMg.c
+SOURCEFILES=gestIO.c main.c ram.c serialCom.c statusmanager.c timerMg.c i2c1.c
 
 
 CFLAGS=
@@ -136,6 +136,13 @@ ${OBJECTDIR}/timerMg.o: timerMg.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE)  timerMg.c  -o ${OBJECTDIR}/timerMg.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/timerMg.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -mno-eds-warn  -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off  
 	@${FIXDEPS} "${OBJECTDIR}/timerMg.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
+${OBJECTDIR}/i2c1.o: i2c1.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/i2c1.o.d 
+	@${RM} ${OBJECTDIR}/i2c1.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  i2c1.c  -o ${OBJECTDIR}/i2c1.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/i2c1.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -mno-eds-warn  -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/i2c1.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 else
 ${OBJECTDIR}/gestIO.o: gestIO.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -178,6 +185,13 @@ ${OBJECTDIR}/timerMg.o: timerMg.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/timerMg.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  timerMg.c  -o ${OBJECTDIR}/timerMg.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/timerMg.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off  
 	@${FIXDEPS} "${OBJECTDIR}/timerMg.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/i2c1.o: i2c1.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/i2c1.o.d 
+	@${RM} ${OBJECTDIR}/i2c1.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  i2c1.c  -o ${OBJECTDIR}/i2c1.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/i2c1.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/i2c1.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 endif
 

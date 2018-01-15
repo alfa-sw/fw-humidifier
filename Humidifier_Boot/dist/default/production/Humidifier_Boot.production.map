@@ -89,13 +89,13 @@ Program Memory  [Origin = 0x200, Length = 0xad00]
 
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
-_042C71E0_at_address_00000200     0x200                 0x4             0x6  (6)
+_03E641E0_at_address_00000200     0x200                 0x4             0x6  (6)
 .text                        0x204               0x2cc           0x432  (1074)
 .const                       0x4d0               0x200           0x300  (768)
 .text                        0x6d0              0x1250          0x1b78  (7032)
 .dinit                      0x1920                0x5c            0x8a  (138)
-_042C7240_at_address_00001FFA    0x1ffa                 0x4             0x6  (6)
-_042C72A0_at_address_00001FFE    0x1ffe                 0x2             0x3  (3)
+_03E64240_at_address_00001FFA    0x1ffa                 0x4             0x6  (6)
+_03E642A0_at_address_00001FFE    0x1ffe                 0x2             0x3  (3)
 
                  Total program memory used (bytes):         0x2343  (9027) 13%
 
@@ -1953,9 +1953,9 @@ __c30_signature
  __c30_signature
                   0x0006ad          0x6 c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-c-elf.a(memset.DA_eo)
 
-_045587E0_at_address_000007FE
+_03E357E0_at_address_000007FE
                     0x07fe          0x2
- _045587E0_at_address_000007FE
+ _03E357E0_at_address_000007FE
                     0x07fe          0x2 build/default/production/ram.o
                     0x07fe                  _slave_index
 
@@ -1998,21 +1998,21 @@ _045587E0_at_address_000007FE
  .bss               0x0984          0x6 build/default/production/ram.o
                     0x0984                  _BLState
 
-_042C71E0_at_address_00000200
+_03E641E0_at_address_00000200
                   0x000200          0x4
- _042C71E0_at_address_00000200
+ _03E641E0_at_address_00000200
                   0x000200          0x4 build/default/production/main.o
                   0x000200                  _Bootloader
 
-_042C7240_at_address_00001FFA
+_03E64240_at_address_00001FFA
                     0x9ffa          0x4 load address 0x001ffa  
- _042C7240_at_address_00001FFA
+ _03E64240_at_address_00001FFA
                     0x9ffa          0x4 build/default/production/main.o
                     0x9ffa                  _dummy0
 
-_042C72A0_at_address_00001FFE
+_03E642A0_at_address_00001FFE
                     0x9ffe          0x2 load address 0x001ffe  
- _042C72A0_at_address_00001FFE
+ _03E642A0_at_address_00001FFE
                     0x9ffe          0x2 build/default/production/main.o
                     0x9ffe                  _dummy1
 

@@ -17,7 +17,7 @@
 #include "ram.h"
 #include "gestio.h"
 #include "define.h"
-
+#include <xc.h>
 /*
 *//*=====================================================================*//**
 **      @brief Initialization humidifier status
@@ -71,6 +71,8 @@ void initParam(void)
 
 	HumidifierAct.Nebulizer_state = OFF;
 	HumidifierAct.Pump_state = OFF;
+    Start_New_Measurement = 0;
+    Sensor_Measurement_Error = FALSE;
 }
 
 /*
@@ -809,9 +811,16 @@ int AcquireHumidityTemperature(unsigned char Temp_Type, unsigned long *Temp, uns
 	{
 		// SHT30
 		case 0:
-			*Temp = 215;
-			*Humidity = 900;
-			return TRUE;
+			if (Start_New_Measurement == 0) 
+                Start_New_Measurement = 1;
+            if (Sensor_Measurement_Error == FALSE)
+            {
+                *Temp = SHT30_Temperature;
+                *Humidity = SHT30_Humidity;
+    			return TRUE;
+            }
+            else
+    			return FALSE;
 		break;
 		
 		default:

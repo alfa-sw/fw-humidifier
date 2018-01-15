@@ -16,7 +16,7 @@
   } while (0)
 
 // Default values for Humidifier 2.0
-// ------------------------------------------------------
+// -----------------------------------------------------------------------------
 #define OFF 0
 #define ON 1
 
@@ -55,7 +55,13 @@
 #define AUTOCAP_CLOSED		0
 #define AUTOCAP_OPEN		1
 #define AUTOCAP_ERROR		2
-// ------------------------------------------------------
+
+#define MEASUREMENT_OK      0
+#define MEASUREMENT_ERROR   1
+
+#define READ_OK      0
+#define READ_ERROR   1
+// -----------------------------------------------------------------------------
 
 # define NEBULIZER_OFF()	\
 do {                        \
@@ -82,3 +88,31 @@ do {                        \
 # define isColorCmdSetupParam()   (HumidifierAct.command.setup_param)
 # define isColorCmdSetupOutput()  (HumidifierAct.command.setup_output)
 
+// -----------------------------------------------------------------------------
+// I2C1
+#ifndef I2C1_CONFIG_TR_QUEUE_LENGTH
+        #define I2C1_CONFIG_TR_QUEUE_LENGTH 1
+#endif
+
+#define I2C1_TRANSMIT_REG                       I2C1TRN                 // Defines the transmit register used to send data.
+#define I2C1_RECEIVE_REG                        I2C1RCV                 // Defines the receive register used to receive data.
+
+// The following control bits are used in the I2C state machine to manage
+// the I2C module and determine next states.
+#define I2C1_WRITE_COLLISION_STATUS_BIT         I2C1STATbits.IWCOL      // Defines the write collision status bit.
+#define I2C1_ACKNOWLEDGE_STATUS_BIT             I2C1STATbits.ACKSTAT    // I2C ACK status bit.
+
+#define I2C1_START_CONDITION_ENABLE_BIT         I2C1CONLbits.SEN         // I2C START control bit.
+#define I2C1_REPEAT_START_CONDITION_ENABLE_BIT  I2C1CONLbits.RSEN        // I2C Repeated START control bit.
+#define I2C1_RECEIVE_ENABLE_BIT                 I2C1CONLbits.RCEN        // I2C Receive enable control bit.
+#define I2C1_STOP_CONDITION_ENABLE_BIT          I2C1CONLbits.PEN         // I2C STOP control bit.
+#define I2C1_ACKNOWLEDGE_ENABLE_BIT             I2C1CONLbits.ACKEN       // I2C ACK start control bit.
+#define I2C1_ACKNOWLEDGE_DATA_BIT               I2C1CONLbits.ACKDT       // I2C ACK data control bit.
+
+#define RESET_ON    0
+#define RESET_WAIT  1
+        
+#define WAIT 0   
+
+// Max Write Command Retry Number with Sensor
+#define SLAVE_I2C_GENERIC_RETRY_MAX 5
