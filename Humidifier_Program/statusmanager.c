@@ -24,6 +24,7 @@
 **
 **      @param void
 **
+                                                                              * 
 **      @retval void
 **
 *//*=====================================================================*//**
@@ -68,6 +69,10 @@ void initParam(void)
     HumidifierAct.Temp_T_LOW = TEMP_T_LOW;
 	// HIGH Temperature threshold value 
     HumidifierAct.Temp_T_HIGH = TEMP_T_HIGH;
+	// Heater Activation 
+    HumidifierAct.Heater = HEATER_TEMP;
+	// Heater Hysteresis 
+    HumidifierAct.Heater_Hysteresis = HEATER_HYSTERESIS;
 
 	HumidifierAct.Nebulizer_state = OFF;
 	HumidifierAct.Pump_state = OFF;
@@ -108,30 +113,33 @@ int AnalyzeParam(void)
 	if ( (HumidifierAct.Humidifier_Enable != HUMIDIFIER_DISABLE) && (HumidifierAct.Humidifier_Enable != HUMIDIFIER_ENABLE) )
 		return FALSE;
     // Humidifier Type
-	else if (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_0)
+	else if ( (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_0) && (HumidifierAct.Humidifier_Enable == HUMIDIFIER_ENABLE) )
 		return FALSE;
 	// Humidifier Multiplier
-    else if (HumidifierAct.Humidifier_Multiplier > MAX_HUMIDIFIER_MULTIPLIER)
+    else if ( (HumidifierAct.Humidifier_Multiplier > MAX_HUMIDIFIER_MULTIPLIER) && (HumidifierAct.Humidifier_Enable == HUMIDIFIER_ENABLE) )
 		return FALSE;
-    else if (HumidifierAct.AutocapOpen_Duration > MAX_HUMIDIFIER_DURATION_AUTOCAP_OPEN)
+    else if ( (HumidifierAct.AutocapOpen_Duration > MAX_HUMIDIFIER_DURATION_AUTOCAP_OPEN) && (HumidifierAct.Humidifier_Enable == HUMIDIFIER_ENABLE) )
 		return FALSE;
 	// Period has to be >= Duration
-	else if (HumidifierAct.AutocapOpen_Duration > HumidifierAct.AutocapOpen_Period)
+	else if ( (HumidifierAct.AutocapOpen_Duration > HumidifierAct.AutocapOpen_Period) && (HumidifierAct.AutocapOpen_Period != 0) && 
+              (HumidifierAct.Humidifier_Enable == HUMIDIFIER_ENABLE) )
 		return FALSE;
 	// Temperature controlled Dosing process Enable / Disable
 	else if ( (HumidifierAct.Temp_Enable != TEMP_DISABLE) && (HumidifierAct.Temp_Enable != TEMP_ENABLE) )
 		return FALSE;
     // Temperature Type
-	else if (HumidifierAct.Temperature_Type != TEMPERATURE_TYPE_0)
+	else if ( (HumidifierAct.Temperature_Type != TEMPERATURE_TYPE_0) && (HumidifierAct.Temp_Enable == TEMP_ENABLE) )
 		return FALSE;
 	// Temperature controlled Dosing process Period 
-    else if (HumidifierAct.Temp_Period < MIN_TEMP_PERIOD)
+    else if ( (HumidifierAct.Temp_Period < MIN_TEMP_PERIOD) && (HumidifierAct.Temp_Enable == TEMP_ENABLE) )
 		return FALSE;
 	else
 	{
 		// 1sec = 500
 		Durata[T_HUM_CAP_OPEN_ON] = HumidifierAct.AutocapOpen_Duration * 500;	
-		Durata[T_HUM_CAP_CLOSED_ON] = (HumidifierAct.Humidifier_Period / 10) * 500;		
+		// Initial Duration = Period / 10
+        Durata[T_HUM_CAP_CLOSED_ON] = (HumidifierAct.Humidifier_Period / 10) * 500;	
+        Process_Period = (HumidifierAct.Humidifier_Period);
 		return TRUE;
 	}		
 }
@@ -148,8 +156,9 @@ int AnalyzeParam(void)
 */
 int AnalyzeSetupOutputs(void)
 {
-    // Type of Peripheral: 0 = Nebulizer - 1 = Pump
-	if ( (PeripheralAct.Peripheral_Types.bytePeripheral != NEBULIZER) && (PeripheralAct.Peripheral_Types.bytePeripheral != POMPA) )
+    // Type of Peripheral: 0 = Nebulizer - 1 = Pump - 2 = LED
+	if ( (PeripheralAct.Peripheral_Types.bytePeripheral != NEBULIZER) && (PeripheralAct.Peripheral_Types.bytePeripheral != POMPA) &&
+         (PeripheralAct.Peripheral_Types.bytePeripheral != POMPA_AND_NEBULIZER) && (PeripheralAct.Peripheral_Types.bytePeripheral != LED_ON) )
 		return FALSE;
 	// Peripheral Action (ON / OFF)
 	else if ( (PeripheralAct.Action != OUTPUT_OFF) && (PeripheralAct.Action != OUTPUT_ON) )
@@ -176,7 +185,7 @@ void humidifierStatusManager(void)
 	unsigned long Dos_Temperature;
 	unsigned long Temperature, RH;
 	static unsigned char Humidifier_Enable, Dos_Temperature_Enable;
-	static unsigned long Process_Period, Process_Pump_Duration, Process_Neb_Duration;
+	static unsigned long Process_Pump_Duration, Process_Neb_Duration;
 	
 	switch (Status.level)
 	{
@@ -216,46 +225,63 @@ void humidifierStatusManager(void)
 			}					
 			// Check for NEW ommmands receivd
 			// ------------------------------------------------------
-
-
 			if(isColorCmdStopProcess() )
 			{
 				StopHumidifier();
 				Status.level = HUMIDIFIER_READY_ST;
+    			HumidifierAct.command.cmd = CMD_IDLE;			
 			}
 			else if (isColorCmdSetupParam() ) 
 			{
 				if (AnalyzeParam() == TRUE)
-					Status.level = HUMIDIFIER_PAR_RX;
-				else
+				{
+                    NextStatus.level = HUMIDIFIER_READY_ST;
+                    Status.level = HUMIDIFIER_PAR_RX;
+				}
+                else
 					Status.level = HUMIDIFIER_BAD_PAR_ERROR;					
+
+    			HumidifierAct.command.cmd = CMD_IDLE;			
 			}	
 			else if (isColorCmdSetupOutput() )
 			{
 				if (AnalyzeSetupOutputs() == FALSE)
 					Status.level = HUMIDIFIER_BAD_PAR_ERROR;
-				else if (PeripheralAct.Peripheral_Types.bytePeripheral == NEBULIZER) 
-				{
-					StopHumidifier();
-					if (PeripheralAct.Action == OUTPUT_ON)
-						HumidifierAct.Nebulizer_state = ON;
-					else 
-						HumidifierAct.Nebulizer_state = OFF;
-
-					Status.level = HUMIDIFIER_NEBULIZER_ON_ST;
-				}		
-				else if (PeripheralAct.Peripheral_Types.bytePeripheral == POMPA) 
-				{
-					StopHumidifier();
-					if (PeripheralAct.Action == OUTPUT_ON)
-						HumidifierAct.Pump_state = ON;
-					else 
-						HumidifierAct.Pump_state = OFF;
-
-					Status.level = HUMIDIFIER_PUMP_ON_ST;
-				}		
+				else 
+                {
+                    Status.level = HUMIDIFIER_PAR_RX;
+                    StopHumidifier();
+                    NextStatus.level = HUMIDIFIER_NEBULIZER_PUMP_ON_ST;
+                    if (PeripheralAct.Peripheral_Types.bytePeripheral == NEBULIZER) 
+                    {
+                        if (PeripheralAct.Action == OUTPUT_ON)
+                            HumidifierAct.Nebulizer_state = ON;
+                        else 
+                            HumidifierAct.Nebulizer_state = OFF;
+                    }		
+    				else if (PeripheralAct.Peripheral_Types.bytePeripheral == POMPA) 
+        			{
+    					if (PeripheralAct.Action == OUTPUT_ON)
+        					HumidifierAct.Pump_state = ON;
+    					else 
+        					HumidifierAct.Pump_state = OFF;
+        			}
+    				else if (PeripheralAct.Peripheral_Types.bytePeripheral == POMPA_AND_NEBULIZER) 
+        			{
+    					if (PeripheralAct.Action == OUTPUT_ON)
+                        {    
+            				HumidifierAct.Pump_state = ON;
+                            HumidifierAct.Nebulizer_state = ON;
+                    	}
+                        else 
+                        {
+                            HumidifierAct.Pump_state = OFF;
+                            HumidifierAct.Nebulizer_state = OFF;
+                        }
+                    }                
+        			HumidifierAct.command.cmd = CMD_IDLE;	
+                }    
 			}
-			HumidifierAct.command.cmd = CMD_IDLE;			
 			// ------------------------------------------------------
 		break;		
 		// HUMIDIFIER_RUN		
@@ -265,7 +291,7 @@ void humidifierStatusManager(void)
 			// Humidifier process
 			if (Humidifier_Enable == TRUE)
 			{	
-				// Check Water Level
+                // Check Water Level
 				if (getWaterLevel() == OFF)
 				{
 					StopHumidifier();
@@ -338,9 +364,14 @@ void humidifierStatusManager(void)
 										count_humidifier_period_closed++;
 										StopTimer(T_HUM_CAP_CLOSED_PERIOD);				
 										StartTimer(T_HUM_CAP_CLOSED_PERIOD);	
+                                        pippo = count_humidifier_period_closed;
+                                        pippo1 = Process_Period;
 										if (count_humidifier_period_closed == Process_Period) 
 										{
-											if (AcquireHumidityTemperature(HumidifierAct.Humdifier_Type, &Temperature, &RH) == TRUE)
+											Temperature = 123;
+                                            RH = 456;
+                                            //if (TRUE)
+                                            if (AcquireHumidityTemperature(HumidifierAct.Humdifier_Type, &Temperature, &RH) == TRUE)
 											{
 												HumidifierAct.Temperature = Temperature;
 												HumidifierAct.Dosing_Temperature = Temperature;
@@ -348,7 +379,9 @@ void humidifierStatusManager(void)
 												HumidifierProcessCalculation(HumidifierAct.Humidifier_Multiplier,HumidifierAct.RH, HumidifierAct.Temperature, 
 													&Process_Period, &Process_Pump_Duration, &Process_Neb_Duration);
 
-												// 1sec = 500
+                                                pippo = Process_Pump_Duration;
+                                                pippo1 = Process_Period;
+                                                // 1sec = 500
 												Durata[T_HUM_CAP_CLOSED_ON] = Process_Pump_Duration * 500;	
 												StartTimer(T_HUM_CAP_CLOSED_ON);
 												count_humidifier_period_closed = 0;
@@ -477,142 +510,61 @@ void humidifierStatusManager(void)
 			{
 				StopHumidifier();
 				Status.level = HUMIDIFIER_READY_ST;
+                HumidifierAct.command.cmd = CMD_IDLE;						
 			}
 			else if (isColorCmdSetupParam() ) 
 			{
 				if (AnalyzeParam() == TRUE)
-					Status.level = HUMIDIFIER_PAR_RX;
+                {
+                    NextStatus.level = HUMIDIFIER_READY_ST;				
+                    Status.level = HUMIDIFIER_PAR_RX;
+                }    
 				else
 					Status.level = HUMIDIFIER_BAD_PAR_ERROR;					
-			}	
+			
+            	HumidifierAct.command.cmd = CMD_IDLE;						
+            }	
 			else if (isColorCmdSetupOutput() )
 			{
 				if (AnalyzeSetupOutputs() == FALSE)
 					Status.level = HUMIDIFIER_BAD_PAR_ERROR;
-				else if (PeripheralAct.Peripheral_Types.bytePeripheral == NEBULIZER) 
-				{
-					StopHumidifier();
-					if (PeripheralAct.Action == OUTPUT_ON)
-						HumidifierAct.Nebulizer_state = ON;
-					else 
-						HumidifierAct.Nebulizer_state = OFF;
-
-					Status.level = HUMIDIFIER_NEBULIZER_ON_ST;
-				}		
-				else if (PeripheralAct.Peripheral_Types.bytePeripheral == POMPA) 
-				{
-					StopHumidifier();
-					if (PeripheralAct.Action == OUTPUT_ON)
-						HumidifierAct.Pump_state = ON;
-					else 
-						HumidifierAct.Pump_state = OFF;
-
-					Status.level = HUMIDIFIER_PUMP_ON_ST;
-				}		
+				else 
+                {
+                    Status.level = HUMIDIFIER_PAR_RX;
+                    StopHumidifier();
+                    NextStatus.level = HUMIDIFIER_NEBULIZER_PUMP_ON_ST;
+                    if (PeripheralAct.Peripheral_Types.bytePeripheral == NEBULIZER) 
+                    {
+                        if (PeripheralAct.Action == OUTPUT_ON)
+                            HumidifierAct.Nebulizer_state = ON;
+                        else 
+                            HumidifierAct.Nebulizer_state = OFF;
+                    }		
+    				else if (PeripheralAct.Peripheral_Types.bytePeripheral == POMPA) 
+        			{
+    					if (PeripheralAct.Action == OUTPUT_ON)
+        					HumidifierAct.Pump_state = ON;
+    					else 
+        					HumidifierAct.Pump_state = OFF;
+        			}
+    				else if (PeripheralAct.Peripheral_Types.bytePeripheral == POMPA_AND_NEBULIZER) 
+        			{
+    					if (PeripheralAct.Action == OUTPUT_ON)
+                        {    
+            				HumidifierAct.Pump_state = ON;
+                            HumidifierAct.Nebulizer_state = ON;
+                    	}
+                        else 
+                        {
+                            HumidifierAct.Pump_state = OFF;
+                            HumidifierAct.Nebulizer_state = OFF;
+                        }
+                    }                
+        			HumidifierAct.command.cmd = CMD_IDLE;	
+                }    
 			}
-			HumidifierAct.command.cmd = CMD_IDLE;						
 			// ------------------------------------------------------
 				
-		break;		
-		// HUMIDIFIER_NEBULIZER ON	
-		// ------------------------------------------------------------------------------------------------------------
-		case HUMIDIFIER_NEBULIZER_ON_ST:
-			if (HumidifierAct.Nebulizer_state == ON)
-				NEBULIZER_ON();
-			else 
-			{
-				Status.level = HUMIDIFIER_READY_ST;
-				NEBULIZER_OFF();
-			}
-			
-			// Check for NEW ommmands receivd
-			// ------------------------------------------------------
-			if(isColorCmdStopProcess() )
-			{
-				StopHumidifier();
-				Status.level = HUMIDIFIER_READY_ST;
-			}
-			else if (isColorCmdSetupParam() ) 
-			{
-				if (AnalyzeParam() == TRUE)
-					Status.level = HUMIDIFIER_PAR_RX;
-				else
-					Status.level = HUMIDIFIER_BAD_PAR_ERROR;					
-			}	
-			else if (isColorCmdSetupOutput() )
-			{
-				if (AnalyzeSetupOutputs() == FALSE)
-					Status.level = HUMIDIFIER_BAD_PAR_ERROR;
-				else if (PeripheralAct.Peripheral_Types.bytePeripheral == NEBULIZER) 
-				{
-					if (PeripheralAct.Action == OUTPUT_ON)
-						HumidifierAct.Nebulizer_state = ON;
-					else
-						HumidifierAct.Nebulizer_state = OFF;						
-				}		
-				else if (PeripheralAct.Peripheral_Types.bytePeripheral == POMPA) 
-				{
-					if (PeripheralAct.Action == OUTPUT_ON)
-						HumidifierAct.Pump_state = ON;
-					else 
-						HumidifierAct.Pump_state = OFF;
-
-					Status.level = HUMIDIFIER_NEBULIZER_PUMP_ON_ST;
-				}		
-			}
-			HumidifierAct.command.cmd = CMD_IDLE;						
-			// ------------------------------------------------------
-			
-		break;	
-		// HUMIDIFIER_PUMP ON	
-		// ------------------------------------------------------------------------------------------------------------
-		case HUMIDIFIER_PUMP_ON_ST:
-			if (HumidifierAct.Pump_state == ON)
-				AIR_PUMP_ON();
-			else 
-			{
-				Status.level = HUMIDIFIER_READY_ST;
-				AIR_PUMP_OFF();
-			}
-			
-			// Check for NEW ommmands receivd
-			// ------------------------------------------------------
-			if(isColorCmdStopProcess() )
-			{
-				StopHumidifier();
-				Status.level = HUMIDIFIER_READY_ST;
-			}
-			else if (isColorCmdSetupParam() ) 
-			{
-				if (AnalyzeParam() == TRUE)
-					Status.level = HUMIDIFIER_PAR_RX;
-				else
-					Status.level = HUMIDIFIER_BAD_PAR_ERROR;					
-			}	
-			else if (isColorCmdSetupOutput() )
-			{
-				if (AnalyzeSetupOutputs() == FALSE)
-					Status.level = HUMIDIFIER_BAD_PAR_ERROR;
-				else if (PeripheralAct.Peripheral_Types.bytePeripheral == NEBULIZER) 
-				{
-					if (PeripheralAct.Action == OUTPUT_ON)
-						HumidifierAct.Nebulizer_state = ON;
-					else
-						HumidifierAct.Nebulizer_state = OFF;
-
-					Status.level = HUMIDIFIER_NEBULIZER_PUMP_ON_ST;					
-				}		
-				else if (PeripheralAct.Peripheral_Types.bytePeripheral == POMPA) 
-				{
-					if (PeripheralAct.Action == OUTPUT_ON)
-						HumidifierAct.Pump_state = ON;
-					else 
-						HumidifierAct.Pump_state = OFF;
-				}		
-			}	
-			HumidifierAct.command.cmd = CMD_IDLE;			
-			// ------------------------------------------------------
-
 		break;		
 		// HUMIDIFIER_NEBULIZER_PUMP ON	
 		// ------------------------------------------------------------------------------------------------------------
@@ -627,9 +579,6 @@ void humidifierStatusManager(void)
 			else 
 				NEBULIZER_OFF();
 			
-			if ( (HumidifierAct.Pump_state == OFF) && (HumidifierAct.Nebulizer_state == OFF) )
-				Status.level = HUMIDIFIER_READY_ST;
-
 			// Check for NEW ommmands receivd
 			// ------------------------------------------------------
 			if(isColorCmdStopProcess() )
@@ -637,13 +586,6 @@ void humidifierStatusManager(void)
 				StopHumidifier();
 				Status.level = HUMIDIFIER_READY_ST;
 			}
-			else if (isColorCmdSetupParam() ) 
-			{
-				if (AnalyzeParam() == TRUE)
-					Status.level = HUMIDIFIER_PAR_RX;
-				else
-					Status.level = HUMIDIFIER_BAD_PAR_ERROR;					
-			}	
 			else if (isColorCmdSetupOutput() )
 			{
 				if (AnalyzeSetupOutputs() == FALSE)
@@ -662,6 +604,21 @@ void humidifierStatusManager(void)
 					else 
 						HumidifierAct.Pump_state = OFF;
 				}		
+				else if (PeripheralAct.Peripheral_Types.bytePeripheral == POMPA_AND_NEBULIZER) 
+				{
+					if (PeripheralAct.Action == OUTPUT_ON) 
+                    {
+						HumidifierAct.Pump_state = ON;
+    					HumidifierAct.Nebulizer_state = ON;
+                    }
+                    else 
+                    {
+						HumidifierAct.Pump_state = OFF;
+                        HumidifierAct.Nebulizer_state = OFF;
+                    }
+                    Status.level = HUMIDIFIER_PAR_RX;
+                    NextStatus.level = HUMIDIFIER_NEBULIZER_PUMP_ON_ST;                    
+                }		
 			}
 			HumidifierAct.command.cmd = CMD_IDLE;						
 			// ------------------------------------------------------			
@@ -669,7 +626,10 @@ void humidifierStatusManager(void)
 		// HUMIDIFIER_PARAMETER CORRECTLY RECEIVED		
 		// ------------------------------------------------------------------------------------------------------------
 		case HUMIDIFIER_PAR_RX:
-			Status.level = HUMIDIFIER_READY_ST;
+			if (isColorCmdStop())
+                Status.level = NextStatus.level;
+            else if (isColorCmdStopProcess())
+				Status.level = HUMIDIFIER_READY_ST;                
 		break;	
 		// HUMIDIFIER_TOO LOW WATER LEVEL
 		// ------------------------------------------------------------------------------------------------------------
@@ -712,39 +672,55 @@ void humidifierStatusManager(void)
 			}
 			else if (isColorCmdSetupParam() ) 
 			{
-				StopTimer(T_DOS_PERIOD);
-				count_dosing_period = 0;
 				if (AnalyzeParam() == TRUE)
-					Status.level = HUMIDIFIER_PAR_RX;
+                {
+                    NextStatus.level = HUMIDIFIER_READY_ST;				
+                    Status.level = HUMIDIFIER_PAR_RX;
+                }    
 				else
 					Status.level = HUMIDIFIER_BAD_PAR_ERROR;					
-			}	
+			
+            	HumidifierAct.command.cmd = CMD_IDLE;						
+            }	            
 			else if (isColorCmdSetupOutput() )
 			{
 				StopTimer(T_DOS_PERIOD);
 				count_dosing_period = 0;
 				if (AnalyzeSetupOutputs() == FALSE)
 					Status.level = HUMIDIFIER_BAD_PAR_ERROR;
-				else if (PeripheralAct.Peripheral_Types.bytePeripheral == NEBULIZER) 
-				{
+				else 
+                {
 					StopHumidifier();
-					if (PeripheralAct.Action == OUTPUT_ON)
-						HumidifierAct.Nebulizer_state = ON;
-					else 
-						HumidifierAct.Nebulizer_state = OFF;
-
-					Status.level = HUMIDIFIER_NEBULIZER_ON_ST;
-				}		
-				else if (PeripheralAct.Peripheral_Types.bytePeripheral == POMPA) 
-				{
-					StopHumidifier();
-					if (PeripheralAct.Action == OUTPUT_ON)
-						HumidifierAct.Pump_state = ON;
-					else 
-						HumidifierAct.Pump_state = OFF;
-
-					Status.level = HUMIDIFIER_PUMP_ON_ST;
-				}		
+                    Status.level = HUMIDIFIER_PAR_RX;
+                    NextStatus.level = HUMIDIFIER_NEBULIZER_PUMP_ON_ST;
+                    if (PeripheralAct.Peripheral_Types.bytePeripheral == NEBULIZER) 
+        			{
+            			if (PeripheralAct.Action == OUTPUT_ON)
+                			HumidifierAct.Nebulizer_state = ON;
+                    	else 
+                        	HumidifierAct.Nebulizer_state = OFF;
+                    }		
+                    else if (PeripheralAct.Peripheral_Types.bytePeripheral == POMPA) 
+                    {
+                        if (PeripheralAct.Action == OUTPUT_ON)
+                            HumidifierAct.Pump_state = ON;
+                        else 
+                            HumidifierAct.Pump_state = OFF;
+                    }
+                    else if (PeripheralAct.Peripheral_Types.bytePeripheral == POMPA_AND_NEBULIZER) 
+                    {
+                        if (PeripheralAct.Action == OUTPUT_ON)
+                        {    
+                            HumidifierAct.Pump_state = ON;
+                            HumidifierAct.Nebulizer_state = ON;
+                        }
+                        else 
+                        {
+                            HumidifierAct.Pump_state = OFF;
+                            HumidifierAct.Nebulizer_state = OFF;
+                        }
+                    }
+                }    
 			}
 			HumidifierAct.command.cmd = CMD_IDLE;						
 			// ------------------------------------------------------			
@@ -784,9 +760,20 @@ int AcquireTemperature(unsigned char Temp_Type, unsigned long *Temp)
 	{
 		// SHT30
 		case 0:
-			*Temp = 215;
-			return TRUE;
-		break;
+/*            
+			if (Start_New_Measurement == 0) 
+                Start_New_Measurement = 1;
+            if (Sensor_Measurement_Error == FALSE)
+            {
+                *Temp = SHT30_Temperature;
+    			return TRUE;
+            }
+            else
+    			return FALSE;
+*/
+    	return TRUE;
+
+        break;
 		
 		default:
 			return FALSE;

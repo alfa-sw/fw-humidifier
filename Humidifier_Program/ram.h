@@ -129,7 +129,7 @@
 #endif /* ! defined RAM_EXTERN_DISABLE */
 
 RAM_EXTERN status_t Status;
-RAM_EXTERN status_t OldStatus;
+RAM_EXTERN status_t NextStatus;
 RAM_EXTERN PeripheralAct_t PeripheralAct;
 RAM_EXTERN HumidifierAct_t HumidifierAct;
 
@@ -142,4 +142,7 @@ RAM_EXTERN unsigned long SHT30_Temperature;
 RAM_EXTERN unsigned long SHT30_Humidity;
 
 RAM_EXTERN uint16_t SHT30_DeviceAddress;
+
+RAM_EXTERN unsigned long Process_Period;
+RAM_EXTERN unsigned long pippo, pippo1;
 

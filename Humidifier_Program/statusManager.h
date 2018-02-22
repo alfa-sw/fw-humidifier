@@ -24,7 +24,7 @@ enum {
 	CMD_STOP = 0x01,
 	CMD_SETUP_PARAM   = 0x02,
 	CMD_SETUP_OUTPUT  = 0x04,
-	CMD_STOP_PROCESDS = 0x08,	
+	CMD_STOP_PROCESS  = 0x08,	
   };
 
   

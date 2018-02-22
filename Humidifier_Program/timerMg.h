@@ -57,7 +57,7 @@
    /* 11 */T_SHT30_MEASUREMENT,
    /* 12 */T_SHT30_WRITE_TIMEOUT,
    /* 13 */T_SHT30_HEATER,
-   /* 14 */
+   /* 14 */T_LED_DURATION_ON,
    N_TIMERS
  };
 
@@ -82,8 +82,9 @@
 // Timeout on SHT30 Write Command: 4 msec
 /* 12 */# define DELAY_SHT30_TIMEOUT 2
 // Wait 10" with HEATER ON
- /* 13 */# define DELAY_WAIT_HEATER 5000
-/* 14 */
+ /* 13*/# define DELAY_WAIT_HEATER 5000
+// LED Duration ON 10"
+/* 14 */# define DELAY_LED 3000
 /* 15 */	
 
 typedef struct {

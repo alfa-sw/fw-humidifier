@@ -134,7 +134,7 @@ void INTERRUPT_Initialize (void)
         
     //    TI: T1 - Timer1
     //    Priority: 1
-    IPC0bits.T1IP = 1;    
+   //IPC0bits.T1IP = 1;    
 }
 
 void gestioneIO(void)
@@ -374,18 +374,19 @@ static unsigned short  FilterSensorInput(DigInStatusType InputFilter)
 
 unsigned char getWaterLevel(void)
 {
-	return DigInStatus.Bit.StatusType0;
+	//return 1;
+    return DigInStatus.Bit.StatusType6;
 }
 
 void readIn(void)
-{	
-	DigInNotFiltered.Bit.StatusType0 = LEVEL;
-	
-	DigInNotFiltered.Bit.StatusType1 = SW1;
-	DigInNotFiltered.Bit.StatusType2 = SW2;
-	DigInNotFiltered.Bit.StatusType3 = SW3;
-	DigInNotFiltered.Bit.StatusType4 = SW4;
-	DigInNotFiltered.Bit.StatusType5 = SW5;
-	DigInNotFiltered.Bit.StatusType6 = SW6;
+{		
+	DigInNotFiltered.Bit.StatusType0 = SW3;
+	DigInNotFiltered.Bit.StatusType1 = SW2;
+	DigInNotFiltered.Bit.StatusType2 = SW1;
+	DigInNotFiltered.Bit.StatusType3 = SW4;
+	DigInNotFiltered.Bit.StatusType4 = SW5;
+	DigInNotFiltered.Bit.StatusType5 = SW6;
+
+	DigInNotFiltered.Bit.StatusType6 = LEVEL;
 }
 

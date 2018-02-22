@@ -520,6 +520,7 @@ void DecodeHumidifierMessage(uartBuffer_t *rxBuffer, unsigned char slave_id)
   {
   case CONTROLLO_PRESENZA:
     HumidifierAct.Autocap_Status = rxBuffer->buffer[idx ++];
+    HumidifierAct.Autocap_Status = AUTOCAP_CLOSED;
     break;
 
   case SETUP_PARAMETRI_UMIDIFICATORE:  
@@ -559,10 +560,14 @@ void DecodeHumidifierMessage(uartBuffer_t *rxBuffer, unsigned char slave_id)
     tmpWord.byte[0] = rxBuffer->buffer[idx ++];
     tmpWord.byte[1] = rxBuffer->buffer[idx ++];
     HumidifierAct.Temp_T_HIGH = tmpWord.sword;	
+	// Heater Activation 
+    HumidifierAct.Heater = rxBuffer->buffer[idx ++];
+	// Heater Hysteresis 
+    HumidifierAct.Heater_Hysteresis = rxBuffer->buffer[idx ++];
     break;
-  
+
   case IMPOSTA_USCITE_UMIDIFICATORE:
-    // Type of Peripheral: 0 = Nebulizer - 1 = Pump
+    // Type of Peripheral: 0 = Nebulizer - 1 = Pump - 2 = Led
 	PeripheralAct.Peripheral_Types.bytePeripheral = rxBuffer->buffer[idx ++];
 	// Peripheral Action (ON / OFF)
 	PeripheralAct.Action = rxBuffer->buffer[idx ++];

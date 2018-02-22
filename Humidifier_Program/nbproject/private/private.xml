@@ -3,18 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="1"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/PROGETTI/Alfa/repository/fw-humidifier/Humidifier_Program/gestIO.c</file>
-            <file>file:/C:/PROGETTI/Alfa/repository/fw-humidifier/Humidifier_Program/timerMg.c</file>
             <file>file:/C:/PROGETTI/Alfa/repository/fw-humidifier/Humidifier_Program/serialCom.c</file>
-            <file>file:/C:/PROGETTI/Alfa/repository/fw-humidifier/Humidifier_Program/serialCom.h</file>
             <file>file:/C:/PROGETTI/Alfa/repository/fw-humidifier/Humidifier_Program/statusmanager.c</file>
-            <file>file:/C:/PROGETTI/Alfa/repository/fw-humidifier/Humidifier_Program/i2c1.h</file>
-            <file>file:/C:/PROGETTI/Alfa/repository/fw-humidifier/Humidifier_Program/i2c1.c</file>
             <file>file:/C:/PROGETTI/Alfa/repository/fw-humidifier/Humidifier_Program/typedef.h</file>
             <file>file:/C:/PROGETTI/Alfa/repository/fw-humidifier/Humidifier_Program/define.h</file>
-            <file>file:/C:/PROGETTI/Alfa/repository/fw-humidifier/Humidifier_Program/timerMg.h</file>
-            <file>file:/C:/PROGETTI/Alfa/repository/fw-humidifier/Humidifier_Program/main.c</file>
-            <file>file:/C:/PROGETTI/Alfa/repository/fw-humidifier/Humidifier_Program/ram.h</file>
         </group>
     </open-files>
 </project-private>

@@ -27,11 +27,11 @@
 #define SW5	PORTCbits.RC4  // Input Dip Switch 5
 #define SW6 PORTCbits.RC5  // Input Dip Switch 6
 
-#define AN0  PORTCbits.RA0 // Input Analog 0
-#define AN1	 PORTCbits.RA1 // Input Analog 1
-#define OSC0 PORTCbits.RA2 // Input Oscillator 1
-#define OSC1 PORTCbits.RA3 // Input Oscillator 0
-#define LED  PORTCbits.RA8 // Output LED
+#define AN0  PORTAbits.RA0 // Input Analog 0
+#define AN1	 PORTAbits.RA1 // Input Analog 1
+#define OSC0 PORTAbits.RA2 // Input Oscillator 1
+#define OSC1 PORTAbits.RA3 // Input Oscillator 0
+#define LED  PORTAbits.RA8 // Output LED
 
 typedef union {
   unsigned char bytes[2];

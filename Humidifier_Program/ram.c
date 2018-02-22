@@ -1,3 +1,4 @@
+
 /* ==== INCLUSIONI ========================================================= */
 #include "typedef.h"
 #include "serialcom.h"

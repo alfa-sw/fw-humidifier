@@ -36,6 +36,12 @@ unsigned short Durata[N_TIMERS] = {
    /* 7 */ DELAY_HUM_CAP_CLOSED_ON,	
    /* 8 */ DELAY_HUM_CAP_CLOSED_PERIOD,
    /* 9 */ DELAY_DOS_PERIOD,
+   /* 10 */DELAY_HARD_RESET,
+   /* 11 */DELAY_SHT30_MEASUREMENT,
+   /* 12 */DELAY_SHT30_TIMEOUT,
+   /* 13 */DELAY_WAIT_HEATER,
+   /* 14 */DELAY_LED,  
+   /* 15 */           
 };
 
 #ifndef NO_BOOTLOADER
@@ -51,9 +57,9 @@ void InitTMR(void)
 	
 	//Timer 1 controls position/speed controller sample time
 	TMR1 = 0;  // Resetting TIMER
-	//  PR1 = SPEED_CONTROL_RATE_TIMER;
-    // PR1 x PRESCALER (= 8) x 2 / FCY (=16MIPS) = 2msec
-	PR1 = 2000; 			// with 16MIPS interrupt every 2 ms
+	// PR1 = SPEED_CONTROL_RATE_TIMER;
+    // PR1 x PRESCALER (= 8) / FCY (=16MIPS) = 2msec
+	PR1 = 4000; 			// with 16MIPS interrupt every 2 ms
 	T1CON = 0x0000;         // Reset timer configuration
 	T1CONbits.TCKPS = 1;    // 1 = 1:8 prescaler
 
@@ -61,7 +67,7 @@ void InitTMR(void)
 	IFS0bits.T1IF = 0;      // Clear Timer1 Interrupt Flag
 	IEC0bits.T1IE = 1;      // Enable Timer1 interrupt
 	T1CONbits.TON = 1;      // Enable Timer1 with prescaler settings at 1:1 and
-                            //clock source set to the internal instruction cycle
+                             //clock source set to the internal instruction cycle
 
 	for (i=0;i<N_TIMERS;i++)
 	{
@@ -141,6 +147,7 @@ void StartTimer(unsigned char Timer)
 }
 
 void StopTimer(unsigned char Timer)
+
 {
 	if (Timer>=N_TIMERS)
 	{
@@ -176,6 +183,5 @@ void __attribute__((__interrupt__,auto_psv)) _T1Interrupt(void)
 
   	++ TimeBase ;
 }
-
 
 

@@ -31,29 +31,33 @@
 
 // FOSCSEL
 #pragma config FNOSC = PRIPLL           // Oscillator Source Selection (Primary Oscillator with PLL module (XT + PLL, HS + PLL, EC + PLL))
+// We can use 96MHZ PLL OR PLLX4: both are correct
 #pragma config PLLMODE = PLL96DIV2      // PLL Mode Selection (96 MHz PLL. Oscillator input is divided by 2 (8 MHz input))
+//#pragma config PLLMODE = PLL4X          // PLL Mode Selection->4x PLL selected
 //#pragma config IESO = OFF             // Two-speed Oscillator Start-up Enable bit (Start up with user-selected oscillator source)
 #pragma config IESO = ON                // Two-speed Oscillator Start-up Enable bit->Start up device with FRC, then switch to user-selected oscillator source
 
 // FOSC
 #pragma config POSCMD = XT              // Primary Oscillator Mode Select bits (XT Crystal Oscillator Mode)
 #pragma config OSCIOFCN = ON            // OSC2 Pin Function bit (OSC2 is general purpose digital I/O pin)
-//#pragma config SOSCSEL = ON           // SOSC Power Selection Configuration bits (SOSC is used in crystal (SOSCI/SOSCO) mode)
 #pragma config SOSCSEL = OFF            // SOSC Power Selection Configuration bits->Digital (SCLKI) mode
 
 #pragma config PLLSS = PLL_PRI          // PLL Secondary Selection Configuration bit (PLL is fed by the Primary oscillator)
-#pragma config IOL1WAY = ON             // Peripheral pin select configuration bit->Allow only one reconfiguration
+//#pragma config IOL1WAY = ON             // Peripheral pin select configuration bit->Allow only one reconfiguration
 #pragma config FCKSM = CSECMD           // Clock Switching Mode bits (Clock switching is enabled,Fail-safe Clock Monitor is disabled)
 
 // FWDT
-#pragma config WDTPS = PS16             // Watchdog Timer Postscaler bits (1:16)
-#pragma config FWPSA = PR32             // Watchdog Timer Prescaler bit (1:32)
-//#pragma config FWDTEN = ON            // Watchdog Timer Enable bits (WDT Enabled)
+// 2sec
+//#pragma config WDTPS = PS128          // Watchdog Timer Postscaler bits->1:128
+//#pragma config FWPSA = PR512          // Watchdog Timer Prescaler bit->1:512
+// 512msec
+#pragma config WDTPS = PS128             // Watchdog Timer Postscaler bits->1:128
+#pragma config FWPSA = PR128            // Watchdog Timer Prescaler bit->1:128
+//#pragma config FWDTEN = ON            // Watchdog Timer Enable bits->WDT Enabled
 #pragma config FWDTEN = ON_SWDTEN       // Watchdog Timer Enable bits->WDT Enabled/Disabled (controlled using SWDTEN bit)
-#pragma config WINDIS = OFF             // Watchdog Timer Window Enable bit (Watchdog Timer in Non-Window mode)
-#pragma config WDTWIN = WIN25           // Watchdog Timer Window Select bits (WDT Window is 25% of WDT period)
-#pragma config WDTCMX = WDTCLK          // WDT MUX Source Select bits (WDT clock source is determined by the WDTCLK Configuration bits)
-//#pragma config WDTCLK = LPRC          // WDT Clock Source Select bits (WDT uses LPRC)
+#pragma config WINDIS = OFF             // Watchdog Timer Window Enable bit->Watchdog Timer in Non-Window mode
+#pragma config WDTWIN = WIN25           // Watchdog Timer Window Select bits->WDT Window is 25% of WDT period
+#pragma config WDTCMX = WDTCLK          // WDT MUX Source Select bits->WDT clock source is determined by the WDTCLK Configuration bits
 #pragma config WDTCLK = SYSCLK          // WDT Clock Source Select bits->WDT uses system clock when active, LPRC while in Sleep mode
 
 // FPOR
@@ -62,7 +66,7 @@
 #pragma config DNVPEN = ENABLE          // Downside Voltage Protection Enable bit (Downside protection enabled using ZPBOR when BOR is inactive)
 
 // FICD
-#pragma config ICS = PGD2               // ICD Communication Channel Select bits (Communicate on PGEC2 and PGED2)
+#pragma config ICS = PGD3               // ICD Communication Channel Select bits (Communicate on PGEC3 and PGED3)
 #pragma config JTAGEN = OFF             // JTAG Enable bit (JTAG is disabled)
 
 // FDEVOPT1
@@ -85,6 +89,7 @@
 #include "ram.h"
 #include "define.h"
 #include "i2c1.h"
+#include "gestIO.h"
 
 volatile const unsigned short *PtrTestResults = (unsigned short *) (__BL_TEST_RESULTS_ADDR);
 
@@ -112,20 +117,33 @@ static DigInMicroSwitch DigInMSwitch;
 
 int main(void)
 {
-	// Use 96MHz PLL	
+    uint8_t stato_led;
+
+    // Manually generated
+// -----------------------------------------------------------------------------        
+    // We can use 96MHZ PLL OR PLLX4: both are correct
+	// 1. 96MHz PLL
     // POSTSCALER Clock Division = 1 --> Clock Frequency = 32MHZ - 16MIPS
     CLKDIVbits.CPDIV0 = 0;
+
     CLKDIVbits.CPDIV1 = 0;
     
-	/* unlock OSCCON register: 'NOSC' = primary oscillator with PLL module - 
-    'OSWEN' = 1 initiate an oscillator switch to the clock source specified by 'NOSC' */
+	// unlock OSCCON register: 'NOSC' = primary oscillator with PLL module - 
+    // 'OSWEN' = 1 initiate an oscillator switch to the clock source specified by 'NOSC' 
 	__builtin_write_OSCCONH(0x03);
 	__builtin_write_OSCCONL(0x01);
-	
-// Auto generate initialization
+
+	/* wait for clock to stabilize: Primary Oscillator with PLL module (XTPLL, HSPLL))*/
+	while (OSCCONbits.COSC != 0b011)
+	  ;	
+	/* wait for PLL to lock: PLL module is in lock, PLL start-up timer is satisfied */
+	while (OSCCONbits.LOCK != 1)
+	  ;
+    // Auto generate initialization
 // -----------------------------------------------------------------------------    
-    // CF no clock failure; NOSC PRIPLL; SOSCEN disabled; POSCEN disabled; CLKLOCK unlocked; OSWEN Switch is Complete; IOLOCK not-active; 
 /*
+	// 2. PLLX4
+    // CF no clock failure; NOSC PRIPLL; SOSCEN disabled; POSCEN disabled; CLKLOCK unlocked; OSWEN Switch is Complete; IOLOCK not-active; 
     __builtin_write_OSCCONL((uint8_t) (0x0300 & 0x00FF));
     // CPDIV 1:1; PLLEN disabled; DOZE 1:8; RCDIV FRC; DOZEN disabled; ROI disabled; 
     CLKDIV = 0x3000;
@@ -147,15 +165,6 @@ int main(void)
     OSCFDIV = 0x0000;
 */
 // -----------------------------------------------------------------------------    
-       
-	/* wait for clock to stabilize: Primary Oscillator with PLL module (XTPLL, HSPLL))*/
-	while (OSCCONbits.COSC != 0b011)
-	  ;
-	
-	/* wait for PLL to lock: PLL module is in lock, PLL start-up timer is satisfied */
-	while (OSCCONbits.LOCK != 1)
-	  ;
-
 	InitTMR();
 	initIO();
     INTERRUPT_Initialize();
@@ -169,9 +178,9 @@ int main(void)
   // Slave Addres is read directly from dip switches)
   if (slave_id == UNIVERSAL_ID) {  
 	/* Read 485 address bits from dip-switch on S1 */
-	DigInMSwitch.Bit.StatusType0 = ~SW1;
+	DigInMSwitch.Bit.StatusType0 = ~SW3;
 	DigInMSwitch.Bit.StatusType1 = ~SW2;
-	DigInMSwitch.Bit.StatusType2 = ~SW3;
+	DigInMSwitch.Bit.StatusType2 = ~SW1;
 	DigInMSwitch.Bit.StatusType3 = ~SW4;
 	DigInMSwitch.Bit.StatusType4 = ~SW5;
 	DigInMSwitch.Bit.StatusType5 = ~SW6;
@@ -192,20 +201,61 @@ int main(void)
     ENABLE_WDT();
 #else
 #endif	
-	while (1)
+
+    StartTimer(T_LED_DURATION_ON);
+    while (1)
 	{
 #ifndef DEBUG_SLAVE
-		/* kicking the dog ;-) */
-		ClrWdt();
+        /* kicking the dog ;-) */
+        ClrWdt();
 #else
 #endif			
-		// main loop
+        // main loop
 		humidifierStatusManager();
 		TimerMg();
 		gestioneIO();
 		serialCommManager();
         I2C_Manager();
-	}
+        
+        // LED management
+        // ---------------------------------------------------------------------
+        if (isColorCmdSetupOutput() )
+        {
+            if (PeripheralAct.Peripheral_Types.bytePeripheral == LED_ON) 
+            {
+                if (AnalyzeSetupOutputs() == FALSE)
+                    HumidifierAct.command.cmd = CMD_IDLE;
+                else
+                {        
+                    if (PeripheralAct.Action == OUTPUT_ON)
+                        LED = ON;
+                    else 
+                        LED = OFF;
+			
+                    HumidifierAct.command.cmd = CMD_IDLE;
+                }
+            }	            
+        }        
+        // LED ON - OFF
+        if (StatusTimer(T_LED_DURATION_ON) == T_ELAPSED)
+        {
+            StopTimer(T_LED_DURATION_ON);
+            StartTimer(T_LED_DURATION_ON);
+            if (stato_led == OFF)
+            {
+                stato_led = ON;
+                LED = ON;
+//                AIR_PUMP_ON();
+            }
+            else
+            {
+                stato_led = OFF;
+                LED = OFF;
+//                AIR_PUMP_OFF();
+            }                
+        }
+        // ---------------------------------------------------------------------                    
+ 	}
 }
 
 

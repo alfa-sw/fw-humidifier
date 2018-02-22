@@ -61,11 +61,11 @@ OPTIONAL(-lfx)
 */
 MEMORY
 {
-  data  (a!xr)   : ORIGIN = 0x1002,        LENGTH = 0x37FE
-  reset          : ORIGIN = 0x2004,        LENGTH = 0x4
+  data  (a!xr)   : ORIGIN = 0x800,         LENGTH = 0x4000
+  reset          : ORIGIN = 0x0,           LENGTH = 0x4
   ivt            : ORIGIN = 0x4,           LENGTH = 0xFC
   aivt           : ORIGIN = 0x104,         LENGTH = 0xFC
-  program (xr)   : ORIGIN = 0x2008,        LENGTH = 0x8EF8 /* ORG + LEN = 0xAF00 */
+  program (xr)   : ORIGIN = 0x200,         LENGTH = 0xAD00
   FSEC           : ORIGIN = 0xAF00,        LENGTH = 0x2
   FBSLIM         : ORIGIN = 0xAF10,        LENGTH = 0x2
   FSIGN          : ORIGIN = 0xAF14,        LENGTH = 0x2
@@ -87,13 +87,13 @@ __FPOR = 0xAF24;
 __FICD = 0xAF28;
 __FDEVOPT1 = 0xAF2C;
 __NO_HANDLES = 1;          /* Suppress handles on this device  */
-__CODE_BASE = 0x2008;
-__CODE_LENGTH = 0x8EF8;
+__CODE_BASE = 0x200;
+__CODE_LENGTH = 0xAD00;
 __IVT_BASE  = 0x4;
 __AIVT_BASE = 0x104;
 
-__DATA_BASE = 0x1002;
-__DATA_LENGTH = 0x37FE;
+__DATA_BASE = 0x800;
+__DATA_LENGTH = 0x4000;
 
 
 /*

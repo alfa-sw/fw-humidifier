@@ -48,7 +48,8 @@ typedef struct
 	struct {
       unsigned char humnidifier_20_nebulizer	: 1;
       unsigned char humidifier_20_pump			: 1;
-      unsigned char unused    					: 6;
+      unsigned char humidifier_20_led			: 1;
+      unsigned char unused    					: 5;
 	};	  
   } Peripheral_Types;
 } PeripheralAct_t;
@@ -117,6 +118,8 @@ typedef struct
   unsigned long Temp_Period;
   unsigned char Temp_T_LOW;
   unsigned char Temp_T_HIGH; 
+  unsigned char Heater;
+  unsigned char Heater_Hysteresis;
 
   unsigned long Temperature;
   unsigned long RH;  

@@ -43,11 +43,14 @@
 #define MIN_TEMP_PERIOD		10
 
 #define TEMP_T_LOW			10
-
 #define TEMP_T_HIGH			20
+#define HEATER_TEMP         20
+#define HEATER_HYSTERESIS   1
 
-#define NEBULIZER			0
 #define POMPA    			1
+#define NEBULIZER			2
+#define POMPA_AND_NEBULIZER 3
+#define LED_ON              4
 
 #define OUTPUT_OFF			0
 #define OUTPUT_ON			1
