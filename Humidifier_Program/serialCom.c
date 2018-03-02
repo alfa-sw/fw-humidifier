@@ -82,24 +82,6 @@ static void decodeMessage(void);
 static void makeMessage (void);
 static void sendMessage(void);
 
-#ifndef NO_BOOTLOADER
-void __attribute__((address(__APPL_U1TX1)))APP_U1TXInterrupt(void)
-{
-  __asm("goto __U1TXInterrupt");
-}
-
-void __attribute__((address(__APPL_U1RX1)))APP_U1RXInterrupt(void)
-{
-  __asm("goto __U1RXInterrupt");
-}
-
-void __attribute__((address(__APPL_MI2C1)))APP_MI2C1Interrupt(void)
-{
-  __asm("goto __MI2C1Interrupt");
-}
-
-#endif
-
 void initSerialCom(void)
 /*
 *//*=====================================================================*//**
@@ -683,7 +665,8 @@ unsigned short CRCarea(unsigned char *pointer, unsigned short n_char,unsigned sh
 /****************************** Interrupt Routine *****************************/
 /******************************************************************************/
 
-void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void)
+//void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void)
+void U1TX_InterruptHandler(void)
 /*
 *//*=====================================================================*//**
 **      @brief Interrupt in tx della UART1
@@ -714,7 +697,8 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void)
   }
 }
 
-void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void)
+//void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void)
+void U1RX_InterruptHandler(void)
 /*
  *//*=====================================================================*//**
 **      @brief Interrupt in tx della UART2

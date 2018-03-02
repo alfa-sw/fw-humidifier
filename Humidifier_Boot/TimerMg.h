@@ -59,5 +59,6 @@ extern timerstype BL_TimStr[N_TIMERS];
 extern unsigned short BL_Durata[N_TIMERS];
 extern void BL_TimerMg (void);
 extern void BL_TimerInit (void);
+extern void BOOT_T1_InterruptHandler(void);
 
 #endif /* __TIMER_MG_H__ */

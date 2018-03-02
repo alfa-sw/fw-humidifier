@@ -189,7 +189,7 @@ static void FW_Upload_Proc(void)
   case ERASE_DEVICE:
     /* Erase operation will take a while... */
     DISABLE_WDT();
-    ERASE_FLASH_PAGES(FIRST_PG_APPL, LAST_PG_APPL);
+    //ERASE_FLASH_PAGES(FIRST_PG_APPL, LAST_PG_APPL);
     ENABLE_WDT();
 
     BLState.step = WAIT_DATA_PACKET;
@@ -252,9 +252,9 @@ static void FW_Upload_Proc(void)
   case PROGRAM_DEVICE:
     /* Write operation will take a while ... */
     DISABLE_WDT();
-    WriteFlashSubBlock(progBoot.address,
-                       BYTES2WORDS(progBoot.numDataBytesPack),
-                       progBoot.bufferData);
+    //WriteFlashSubBlock(progBoot.address,
+    //                   BYTES2WORDS(progBoot.numDataBytesPack),
+    //                   progBoot.bufferData);
     ENABLE_WDT();
 
     setBootMessage(ACK_FW_UPLOAD);
@@ -270,9 +270,9 @@ static void FW_Upload_Proc(void)
 
     /* Write operation will take a while ... */
     DISABLE_WDT();
-    WriteFlashSubBlock(progBoot.address,
-                       BYTES2WORDS(progBoot.numDataBytesPack),
-                       progBoot.bufferData);
+    //WriteFlashSubBlock(progBoot.address,
+    //                   BYTES2WORDS(progBoot.numDataBytesPack),
+    //                   progBoot.bufferData);
     ENABLE_WDT();
 
     setBootMessage(ACK_FW_UPLOAD);
@@ -314,9 +314,9 @@ static void FW_Upload_Proc(void)
 		if (Set_Reset == 2) {
 			/* Write operation will take a while ... */
 			DISABLE_WDT();
-			//  WriteFlashWord(BL_STAND_ALONE_CHECK, 0x00000000L);
-			//ENABLE_WDT();
-			//Reset();
+			WriteFlashWord(BL_STAND_ALONE_CHECK, 0x00000000L);
+			ENABLE_WDT();
+			Reset();
 			BL_StandAlone = CheckApplicationPresence(BL_STAND_ALONE_CHECK);
 			if (BL_StandAlone == BL_NO_STAND_ALONE) {
 				Nop();

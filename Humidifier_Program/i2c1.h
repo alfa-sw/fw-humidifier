@@ -261,6 +261,7 @@ extern unsigned int ResetProcedure (unsigned char type);
 extern void I2C_Manager (void);
 extern uint8_t Write_I2C_Command (uint8_t writeCommand[2]);
 extern uint8_t Read_I2C_Command (uint8_t *res, uint8_t bytes_n);
+extern void MI2C1_InterruptHandler(void);
 
 #ifdef __cplusplus  // Provide C++ Compatibility
 

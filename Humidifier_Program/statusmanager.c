@@ -368,8 +368,6 @@ void humidifierStatusManager(void)
                                         pippo1 = Process_Period;
 										if (count_humidifier_period_closed == Process_Period) 
 										{
-											Temperature = 123;
-                                            RH = 456;
                                             //if (TRUE)
                                             if (AcquireHumidityTemperature(HumidifierAct.Humdifier_Type, &Temperature, &RH) == TRUE)
 											{
@@ -746,7 +744,7 @@ void humidifierStatusManager(void)
 *//*=====================================================================*//**
 **      @brief Temperature Measurement
 **
-**      @param unsigned char Temp_Type --> Type of Sensor: 0 = Sensirion SHT30
+**      @param unsigned char Temp_Type --> Type of Sensor: 0 = Sensirion SHT31
 **			   unsigned long *Temp	   --> Temperature Measurement
 **
 **      @retval bool --> TRUE  = good measurement
@@ -758,14 +756,14 @@ int AcquireTemperature(unsigned char Temp_Type, unsigned long *Temp)
 {
 	switch (Temp_Type)
 	{
-		// SHT30
+		// SHT31
 		case 0:
 /*            
 			if (Start_New_Measurement == 0) 
                 Start_New_Measurement = 1;
             if (Sensor_Measurement_Error == FALSE)
             {
-                *Temp = SHT30_Temperature;
+                *Temp = SHT31_Temperature;
     			return TRUE;
             }
             else
@@ -784,7 +782,7 @@ int AcquireTemperature(unsigned char Temp_Type, unsigned long *Temp)
 *//*=====================================================================*//**
 **      @brief Humidity Temperature Measurement
 **
-**      @param unsigned char Temp_Type --> Type of Sensor: 0 = Sensirion SHT30
+**      @param unsigned char Temp_Type --> Type of Sensor: 0 = Sensirion SHT31
 **			   unsigned long *Temp	   --> Temperature Measurement
 **
 **      @retval bool --> TRUE  = good measurement
@@ -796,14 +794,14 @@ int AcquireHumidityTemperature(unsigned char Temp_Type, unsigned long *Temp, uns
 {
 	switch (Temp_Type)
 	{
-		// SHT30
+		// SHT31
 		case 0:
 			if (Start_New_Measurement == 0) 
                 Start_New_Measurement = 1;
             if (Sensor_Measurement_Error == FALSE)
             {
-                *Temp = SHT30_Temperature;
-                *Humidity = SHT30_Humidity;
+                *Temp = SHT31_Temperature;
+                *Humidity = SHT31_Humidity;
     			return TRUE;
             }
             else

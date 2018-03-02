@@ -126,11 +126,10 @@ typedef struct
   unsigned char numRetry;
 } serialSlave_t;
 
-
 extern void initSerialCom(void);
 extern void serialCommManager(void);
-
-
+extern void U1RX_InterruptHandler(void);
+extern void U1TX_InterruptHandler(void);
 
 #endif
 

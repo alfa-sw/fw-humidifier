@@ -483,41 +483,6 @@ void BL_serialCommManager(void)
   BL_sendMessage();
 }
 
-void __attribute__((__interrupt__, no_auto_psv)) _AltU1RXInterrupt(void)
-/*
- *//*=====================================================================*//**
-**      @brief Interrupt in tx della UART2
-**
-**      @param void
-**
-**      @retval void
-*//*=====================================================================*//**
-*/
-{
-  register unsigned char flushUart;
-
-  if (_U1RXIE && _U1RXIF) {
-    _U1RXIF = 0;
-
-    /* Overrun Error */
-    if (U1STAbits.OERR) {
-      /* signal Overrun Error */
-      U1STAbits.OERR = 0;
-      SIGNAL_ERROR();
-    }
-
-    /* Framing Error */
-    if (U1STAbits.FERR) {
-      flushUart = U1RXREG;
-
-      /* signal Framing Error */
-      SIGNAL_ERROR();
-    }
-
-    BL_rebuildMessage(U1RXREG);
-  }
-}
-
 void BL_stuff_byte(unsigned char *buf, unsigned char *ndx, char c)
 /**/
 /*===========================================================================*/
@@ -554,8 +519,7 @@ void BL_stuff_byte(unsigned char *buf, unsigned char *ndx, char c)
 /******************************************************************************/
 /****************************** Interrupt Routine *****************************/
 /******************************************************************************/
-
-void __attribute__((__interrupt__, no_auto_psv)) _AltU1TXInterrupt(void)
+void BOOT_U1TX_InterruptHandler(void)
 /*
 *//*=====================================================================*//**
 **      @brief Interrupt in tx della UART1
@@ -586,5 +550,40 @@ void __attribute__((__interrupt__, no_auto_psv)) _AltU1TXInterrupt(void)
     else {
       U1TXREG = txBuffer.buffer[txBuffer.index ++];
     }
+  }
+}
+
+void BOOT_U1RX_InterruptHandler(void)
+/*
+ *//*=====================================================================*//**
+**      @brief Interrupt in rx della UART1
+**
+**      @param void
+**
+**      @retval void
+*//*=====================================================================*//**
+*/
+{
+  register unsigned char flushUart;
+
+  if (_U1RXIE && _U1RXIF) {
+    _U1RXIF = 0;
+
+    /* Overrun Error */
+    if (U1STAbits.OERR) {
+      /* signal Overrun Error */
+      U1STAbits.OERR = 0;
+      SIGNAL_ERROR();
+    }
+
+    /* Framing Error */
+    if (U1STAbits.FERR) {
+      flushUart = U1RXREG;
+
+      /* signal Framing Error */
+      SIGNAL_ERROR();
+    }
+
+    BL_rebuildMessage(U1RXREG);
   }
 }

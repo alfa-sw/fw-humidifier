@@ -19,8 +19,11 @@
 /* Interrupt vector addresses */
 #define  __APPL_T1     (__APPL_CODE_BASE + 0x1A)  // 0x201A 
 #define  __APPL_U1RX1  (__APPL_CODE_BASE + 0x24)  // 0x2024 
-#define  __APPL_U1TX1  (__APPL_CODE_BASE + 0x2E)  // 0x202E 
+#define  __APPL_U1TX1  (__APPL_CODE_BASE + 0x2E)  // 0x202E
 #define  __APPL_MI2C1  (__APPL_CODE_BASE + 0x38)  // 0x2038 
+#define  __APPL_SPI1   (__APPL_CODE_BASE + 0x42)  // 0x2042
+#define  __APPL_SPI1TX (__APPL_CODE_BASE + 0x4C)  // 0x204C
+#define  __APPL_SPI1RX (__APPL_CODE_BASE + 0x56)  // 0x2056
 /* -- Data memory macros -------------------------------------------------- */
 #define __APPL_DATA_BASE 0x1010
 /* Data dwelling in the BL memory, not altered by app init */

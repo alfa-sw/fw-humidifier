@@ -79,8 +79,8 @@ void I2C1_Initialize(void)
     // Sensor Hard Reset OFF
     TMP_RESET = 1;
     
-    // Sensirion SHT30 fixed Address
-    SHT30_DeviceAddress = 0x44;
+    // Sensirion SHT31 fixed Address
+    SHT31_DeviceAddress = 0x44;
 }
 
 uint8_t I2C1_ErrorCountGet(void)
@@ -91,7 +91,8 @@ uint8_t I2C1_ErrorCountGet(void)
     return ret;
 }
 
-void __attribute__ ( ( interrupt, no_auto_psv ) ) _MI2C1Interrupt ( void )
+//void __attribute__ ( ( interrupt, no_auto_psv ) ) _MI2C1Interrupt ( void )
+void MI2C1_InterruptHandler(void)
 {
   
     static uint8_t  *pi2c_buf_ptr;
@@ -417,6 +418,7 @@ void I2C1_MasterWrite(
     {
         I2C1_MasterWriteTRBBuild(&trBlock, pdata, length, address);
         I2C1_MasterTRBInsert(1, &trBlock, pstatus);
+*pstatus = I2C1_MESSAGE_COMPLETE;
     }
     else
     {
@@ -439,6 +441,14 @@ void I2C1_MasterRead(
     {
         I2C1_MasterReadTRBBuild(&trBlock, pdata, length, address);
         I2C1_MasterTRBInsert(1, &trBlock, pstatus);
+*pstatus = I2C1_MESSAGE_COMPLETE; 
+*pdata   = 96;
+*(pdata+1)   = 100;
+*(pdata+2)   = 15;
+*(pdata+3)   = 20;
+*(pdata+4)   = 25;
+*(pdata+5)   = 30;
+length = 6;        
     }
     else
     {
@@ -487,8 +497,7 @@ void I2C1_MasterTRBInsert(
             // force the task to run since we know that the queue has
             // something that needs to be sent
             IFS1bits.MI2C1IF = 1;
-        }           
-        
+        }                   
     }
     else
     {
@@ -533,7 +542,7 @@ bool I2C1_MasterQueueIsFull(void)
 
 /*
 *//*=====================================================================*//**
-**      @brief Write Command to SHT30 Senspr
+**      @brief Write Command to SHT31 Senspr
 **
 **      @param uint8_t writeCommand[2]
 **
@@ -549,20 +558,20 @@ uint8_t Write_I2C_Command (uint8_t writeCommand[2])
     
     timeOut = 0;
     slaveTimeOut = 0;
-    StopTimer(T_SHT30_WRITE_TIMEOUT);
-    StartTimer(T_SHT30_WRITE_TIMEOUT);            
+    StopTimer(T_SHT31_WRITE_TIMEOUT);
+    StartTimer(T_SHT31_WRITE_TIMEOUT);            
     status = I2C1_MESSAGE_PENDING;
     while(status != I2C1_MESSAGE_FAIL)
     {
-        // Write 2 bytes (= Command code) to SHT30 address '0x44'
-        I2C1_MasterWrite(writeCommand,2,SHT30_DeviceAddress,&status);
+        // Write 2 bytes (= Command code) to SHT31 address '0x44'
+        I2C1_MasterWrite(writeCommand,2,SHT31_DeviceAddress,&status);
         // Wait for the message to be sent or status has changed
         while(status == I2C1_MESSAGE_PENDING)
         {
-            if (StatusTimer(T_SHT30_WRITE_TIMEOUT) == T_ELAPSED)
+            if (StatusTimer(T_SHT31_WRITE_TIMEOUT) == T_ELAPSED)
             {
                 slaveTimeOut = 1;
-                StopTimer(T_SHT30_WRITE_TIMEOUT);
+                StopTimer(T_SHT31_WRITE_TIMEOUT);
                 break;
             } 
         } 
@@ -581,7 +590,7 @@ uint8_t Write_I2C_Command (uint8_t writeCommand[2])
         else
             timeOut++;
     }
-    StopTimer(T_SHT30_WRITE_TIMEOUT);
+    StopTimer(T_SHT31_WRITE_TIMEOUT);
 
     // Write Command failed
     if (status != I2C1_MESSAGE_COMPLETE)
@@ -592,7 +601,7 @@ uint8_t Write_I2C_Command (uint8_t writeCommand[2])
 
 /*
 *//*=====================================================================*//**
-**      @brief Read Command to SHT30 Sensor
+**      @brief Read Command to SHT31 Sensor
 **
 **      @param uint8_t *res: pointer to received data buffer
 **             uint8_t bytes_n: bytes number to be read         
@@ -609,20 +618,20 @@ uint8_t Read_I2C_Command (uint8_t *res, uint8_t bytes_n)
 
     timeOut = 0;
     slaveTimeOut = 0;
-    StopTimer(T_SHT30_WRITE_TIMEOUT);
-    StartTimer(T_SHT30_WRITE_TIMEOUT);            
+    StopTimer(T_SHT31_WRITE_TIMEOUT);
+    StartTimer(T_SHT31_WRITE_TIMEOUT);            
     status = I2C1_MESSAGE_PENDING;
     while(status != I2C1_MESSAGE_FAIL)
     {
-        // Read SHT30 Temperature Humidity results
-        I2C1_MasterRead(res,bytes_n,SHT30_DeviceAddress,&status);
+        // Read SHT31 Temperature Humidity results
+        I2C1_MasterRead(res,bytes_n,SHT31_DeviceAddress,&status);
         // Wait for the message to be sent or status has changed.
         while(status == I2C1_MESSAGE_PENDING)
         {
-            if (StatusTimer(T_SHT30_WRITE_TIMEOUT) == T_ELAPSED)
+            if (StatusTimer(T_SHT31_WRITE_TIMEOUT) == T_ELAPSED)
             {
                 slaveTimeOut = 1;
-                StopTimer(T_SHT30_WRITE_TIMEOUT);
+                StopTimer(T_SHT31_WRITE_TIMEOUT);
                 break;
             } 
         }
@@ -641,7 +650,7 @@ uint8_t Read_I2C_Command (uint8_t *res, uint8_t bytes_n)
         else
             timeOut++;
     }
-    StopTimer(T_SHT30_WRITE_TIMEOUT);
+    StopTimer(T_SHT31_WRITE_TIMEOUT);
     // Read Command failed
     if (status != I2C1_MESSAGE_COMPLETE)
         return READ_ERROR;
@@ -651,7 +660,7 @@ uint8_t Read_I2C_Command (uint8_t *res, uint8_t bytes_n)
 
 /*
 *//*=====================================================================*//**
-**      @brief Updates SHT30 Sensor Acquisition Status
+**      @brief Updates SHT31 Sensor Acquisition Status
 **
 **      @param void
 **
@@ -662,10 +671,11 @@ uint8_t Read_I2C_Command (uint8_t *res, uint8_t bytes_n)
 void I2C_Manager (void)
 {
     static uint8_t Status_I2C = I2C_IDLE;
-    static uint16_t SHT30_Humidity_tmp, SHT30_Temperature_tmp;
-    static uint16_t SHT30_Raw_Humidity, SHT30_Raw_Temperature;     
-    static uint16_t SHT30_Status;
-    uint8_t SHT30_Checksum_Temperature, SHT30_Checksum_Humidity, SHT30_Checksum_Status;
+    static uint16_t SHT31_Humidity_tmp, SHT31_Temperature_tmp;
+    //static float SHT31_Humidity_tmp, SHT31_Temperature_tmp;
+    static uint16_t SHT31_Raw_Humidity, SHT31_Raw_Temperature;     
+    static uint16_t SHT31_Status;
+    uint8_t SHT31_Checksum_Temperature, SHT31_Checksum_Humidity, SHT31_Checksum_Status;
     uint8_t result;
     uint8_t writeBuffer[2];
     uint8_t Read_results[6];
@@ -673,13 +683,19 @@ void I2C_Manager (void)
     switch (Status_I2C)
     {
         case I2C_IDLE:
-
+            Read_results[0] = 0;
+            Read_results[1] = 0;
+            Read_results[2] = 0;
+            Read_results[3] = 0;
+            Read_results[4] = 0;
+            Read_results[5] = 0;
+            
             ResetProcedure(OFF);
             if (Start_New_Measurement == TRUE)
                 Status_I2C = I2C_WRITE_SINGLE_SHOT_DATA_ACQUISITION;
         break;      
 // -----------------------------------------------------------------------------
-        // Write Temperature Humidity Command to SHT30
+        // Write Temperature Humidity Command to SHT31
         case I2C_WRITE_SINGLE_SHOT_DATA_ACQUISITION:
             // Build the write buffer first: 'SINGLE SHOT DATA ACQUISITION' - "0x240B"
             writeBuffer[0] = 0x24;          
@@ -687,7 +703,7 @@ void I2C_Manager (void)
             result = Write_I2C_Command (writeBuffer);
             if (result == MEASUREMENT_OK)
             {
-                StartTimer(T_SHT30_MEASUREMENT);
+                StartTimer(T_SHT31_MEASUREMENT);
                 Status_I2C = I2C_WAIT_READ_RESULTS;                        
             }    
             else
@@ -700,9 +716,9 @@ void I2C_Manager (void)
 
         // WAIT 8 msec before to Read results
         case I2C_WAIT_READ_RESULTS:
-            if (StatusTimer(T_SHT30_MEASUREMENT) == T_ELAPSED)
+            if (StatusTimer(T_SHT31_MEASUREMENT) == T_ELAPSED)
             {
-                StopTimer(T_SHT30_MEASUREMENT);
+                StopTimer(T_SHT31_MEASUREMENT);
                 Status_I2C = I2C_READ_RESULTS;                
             }
         break;
@@ -711,7 +727,7 @@ void I2C_Manager (void)
         case I2C_READ_RESULTS:
             result = Read_I2C_Command (Read_results, 6);            
             // Read Command failed
-            if (result != I2C1_MESSAGE_COMPLETE)
+            if (result != MEASUREMENT_OK)
             {    
                 Sensor_Measurement_Error = TRUE;
                 // Set HARD RESET
@@ -719,10 +735,10 @@ void I2C_Manager (void)
             }
             else
             {                    
-                SHT30_Raw_Temperature = Read_results[0]*256 + Read_results[1]; 
-                SHT30_Checksum_Temperature = Read_results[2];
-                SHT30_Raw_Humidity = Read_results[3]*256 + Read_results[4]; 
-                SHT30_Checksum_Humidity = Read_results[5];                
+                SHT31_Raw_Temperature = Read_results[0]*256 + Read_results[1]; 
+                SHT31_Checksum_Temperature = Read_results[2];
+                SHT31_Raw_Humidity = Read_results[3]*256 + Read_results[4]; 
+                SHT31_Checksum_Humidity = Read_results[5];                
                 Status_I2C = I2C_CALCULATE_HUMIDITY_TEMPERATURE;                        
             }            
         break;
@@ -730,14 +746,14 @@ void I2C_Manager (void)
         // Calculate Absolute values from Raw data
         case I2C_CALCULATE_HUMIDITY_TEMPERATURE:
             // RH Umidiy % x 10
-            SHT30_Humidity_tmp = ((float)(SHT30_Raw_Humidity / 65535)) * 1000;        
+            SHT31_Humidity_tmp = (((float)SHT31_Raw_Humidity / 65535)) * 1000;        
             // Temperature (°C) x 10)
-            SHT30_Temperature_tmp = ((float)((SHT30_Raw_Temperature / 65535)* 175) - 45)*10; 
+            SHT31_Temperature_tmp = ((((float)SHT31_Raw_Temperature / 65535)* 175) - 45)*10; 
             
             Status_I2C = I2C_WRITE_STATUS_COMMAND;
         break;
 // -----------------------------------------------------------------------------
-        // Write Status Command to SHT30
+        // Write Status Command to SHT31
         case I2C_WRITE_STATUS_COMMAND:
             // Build the write buffer first: 'READ OUT OF STATUS REGISTER' - "0xF32D"
             writeBuffer[0] = 0xF3;          
@@ -745,7 +761,7 @@ void I2C_Manager (void)
             result = Write_I2C_Command (writeBuffer);
             if (result == MEASUREMENT_OK)
             {
-                StartTimer(T_SHT30_MEASUREMENT);
+                StartTimer(T_SHT31_MEASUREMENT);
                 Status_I2C = I2C_WAIT_READ_STATUS;                        
             }    
             else
@@ -758,9 +774,9 @@ void I2C_Manager (void)
 
         // WAIT 8 msec before to Read Status
         case I2C_WAIT_READ_STATUS:
-            if (StatusTimer(T_SHT30_MEASUREMENT) == T_ELAPSED)
+            if (StatusTimer(T_SHT31_MEASUREMENT) == T_ELAPSED)
             {
-                StopTimer(T_SHT30_MEASUREMENT);
+                StopTimer(T_SHT31_MEASUREMENT);
                 Status_I2C = I2C_READ_STATUS;                
             }                
         break;
@@ -769,7 +785,7 @@ void I2C_Manager (void)
         case I2C_READ_STATUS:
             result = Read_I2C_Command (Read_results, 3);            
             // Read Command failed
-            if (result != I2C1_MESSAGE_COMPLETE)
+            if (result != MEASUREMENT_OK)
             {    
                 Sensor_Measurement_Error = TRUE;
                 // Set HARD RESET
@@ -777,10 +793,10 @@ void I2C_Manager (void)
             }
             else
             {                    
-                SHT30_Status = Read_results[0]*256 + Read_results[1]; 
-                SHT30_Checksum_Status = Read_results[2];
+                SHT31_Status = Read_results[0]*256 + Read_results[1]; 
+                SHT31_Checksum_Status = Read_results[2];
                 // Last Command NOT Received (bit1) OR Checksum Error (bit0) --> Command Error
-                if ( (SHT30_Status & 0x0003) != 0)
+                if ( (SHT31_Status & 0x0003) != 0)
                 {
                     Sensor_Measurement_Error = TRUE;
                     // Set HARD RESET
@@ -790,9 +806,9 @@ void I2C_Manager (void)
                 {    
                     // Correct Measurement and Status
                     // RH Umidiy % x 10
-                    SHT30_Humidity = SHT30_Humidity_tmp;        
+                    SHT31_Humidity = SHT31_Humidity_tmp;        
                     // Temperature (°C) x 10)
-                    SHT30_Temperature = SHT30_Temperature_tmp;
+                    SHT31_Temperature = SHT31_Temperature_tmp;
                     Sensor_Measurement_Error = FALSE;
                     Start_New_Measurement = FALSE;
                     Status_I2C = I2C_IDLE;
@@ -810,7 +826,7 @@ void I2C_Manager (void)
         break;
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
-        // Write HEATER ON Command to SHT30
+        // Write HEATER ON Command to SHT31
         case I2C_WRITE_HEATER_ON:
             // Build the write buffer first: 'HEATER ON' - "0x306D"
             writeBuffer[0] = 0x30;          
@@ -818,7 +834,7 @@ void I2C_Manager (void)
             result = Write_I2C_Command (writeBuffer);
             if (result == MEASUREMENT_OK)
             {
-                StartTimer(T_SHT30_HEATER);
+                StartTimer(T_SHT31_HEATER);
                 Status_I2C = I2C_WAIT_HEATER_ON;                        
             }    
             else
@@ -831,13 +847,13 @@ void I2C_Manager (void)
 
         // WAIT 10" HEATER ON
         case I2C_WAIT_HEATER_ON:
-            if (StatusTimer(T_SHT30_HEATER) == T_ELAPSED)
+            if (StatusTimer(T_SHT31_HEATER) == T_ELAPSED)
             {
-                StopTimer(T_SHT30_HEATER);
+                StopTimer(T_SHT31_HEATER);
                 Status_I2C = I2C_WRITE_HEATER_STATUS_COMMAND;                
             }
         break;
-        // Write Status Command to SHT30
+        // Write Status Command to SHT31
         case I2C_WRITE_HEATER_STATUS_COMMAND:
             // Build the write buffer first: 'READ OUT OF STATUS REGISTER' - "0xF32D"
             writeBuffer[0] = 0xF3;          
@@ -845,7 +861,7 @@ void I2C_Manager (void)
             result = Write_I2C_Command (writeBuffer);
             if (result == MEASUREMENT_OK)
             {
-                StartTimer(T_SHT30_MEASUREMENT);
+                StartTimer(T_SHT31_MEASUREMENT);
                 Status_I2C = I2C_WAIT_READ_ON_STATUS;                        
             }    
             else
@@ -858,9 +874,9 @@ void I2C_Manager (void)
 
         // WAIT 8 msec before to Read Status
         case I2C_WAIT_READ_ON_STATUS:
-            if (StatusTimer(T_SHT30_MEASUREMENT) == T_ELAPSED)
+            if (StatusTimer(T_SHT31_MEASUREMENT) == T_ELAPSED)
             {
-                StopTimer(T_SHT30_MEASUREMENT);
+                StopTimer(T_SHT31_MEASUREMENT);
                 Status_I2C = I2C_READ_ON_STATUS;                
             }                
         break;
@@ -869,7 +885,7 @@ void I2C_Manager (void)
         case I2C_READ_ON_STATUS:
             result = Read_I2C_Command (Read_results, 3);            
             // Read Command failed
-            if (result != I2C1_MESSAGE_COMPLETE)
+            if (result != MEASUREMENT_OK)
             {    
                 Sensor_Measurement_Error = TRUE;
                 // Set HARD RESET
@@ -877,10 +893,10 @@ void I2C_Manager (void)
             }
             else
             {                    
-                SHT30_Status = Read_results[0]*256 + Read_results[1]; 
-                SHT30_Checksum_Status = Read_results[2];
+                SHT31_Status = Read_results[0]*256 + Read_results[1]; 
+                SHT31_Checksum_Status = Read_results[2];
                 // Last Command NOT Received (bit1) OR Checksum Error (bit0) OR Heater OFF (bit 13) --> Command Error
-                if ( ( (SHT30_Status & 0x0003) != 0) ||  ( (SHT30_Status & 0x2000) == 0) )              
+                if ( ( (SHT31_Status & 0x0003) != 0) ||  ( (SHT31_Status & 0x2000) == 0) )              
                 {
                     Sensor_Measurement_Error = TRUE;
                     // Set HARD RESET
@@ -895,7 +911,7 @@ void I2C_Manager (void)
             }            
         break;
         
-        // Write HEATER OFF Command to SHT30
+        // Write HEATER OFF Command to SHT31
         case I2C_WRITE_HEATER_OFF:
             // Build the write buffer first: 'HEATER ON' - "0x3066"
             writeBuffer[0] = 0x30;          
@@ -903,7 +919,7 @@ void I2C_Manager (void)
             result = Write_I2C_Command (writeBuffer);
             if (result == MEASUREMENT_OK)
             {
-                StartTimer(T_SHT30_MEASUREMENT);
+                StartTimer(T_SHT31_MEASUREMENT);
                 Status_I2C = I2C_WAIT_READ_STATUS_OFF;                        
             }    
             else
@@ -916,14 +932,14 @@ void I2C_Manager (void)
 
         // WAIT 8 msec before to Read Status
         case I2C_WAIT_READ_STATUS_OFF:
-            if (StatusTimer(T_SHT30_MEASUREMENT) == T_ELAPSED)
+            if (StatusTimer(T_SHT31_MEASUREMENT) == T_ELAPSED)
             {
-                StopTimer(T_SHT30_MEASUREMENT);
+                StopTimer(T_SHT31_MEASUREMENT);
                 Status_I2C = I2C_WRITE_HEATER_OFF_STATUS_COMMAND;                
             }
         break;
         
-        // Write Status Command to SHT30
+        // Write Status Command to SHT31
         case I2C_WRITE_HEATER_OFF_STATUS_COMMAND:
             // Build the write buffer first: 'READ OUT OF STATUS REGISTER' - "0xF32D"
             writeBuffer[0] = 0xF3;          
@@ -931,7 +947,7 @@ void I2C_Manager (void)
             result = Write_I2C_Command (writeBuffer);
             if (result == MEASUREMENT_OK)
             {
-                StartTimer(T_SHT30_MEASUREMENT);
+                StartTimer(T_SHT31_MEASUREMENT);
                 Status_I2C = I2C_WAIT_READ_OFF_STATUS;                        
             }    
             else
@@ -944,9 +960,9 @@ void I2C_Manager (void)
 
         // WAIT 8 msec before to Read Status
         case I2C_WAIT_READ_OFF_STATUS:
-            if (StatusTimer(T_SHT30_MEASUREMENT) == T_ELAPSED)
+            if (StatusTimer(T_SHT31_MEASUREMENT) == T_ELAPSED)
             {
-                StopTimer(T_SHT30_MEASUREMENT);
+                StopTimer(T_SHT31_MEASUREMENT);
                 Status_I2C = I2C_READ_OFF_STATUS;                
             }                
         break;
@@ -955,7 +971,7 @@ void I2C_Manager (void)
         case I2C_READ_OFF_STATUS:
             result = Read_I2C_Command (Read_results, 3);            
             // Read Command failed
-            if (result != I2C1_MESSAGE_COMPLETE)
+            if (result != MEASUREMENT_OK)
             {    
                 Sensor_Measurement_Error = TRUE;
                 // Set HARD RESET
@@ -963,10 +979,10 @@ void I2C_Manager (void)
             }
             else
             {                    
-                SHT30_Status = Read_results[0]*256 + Read_results[1]; 
-                SHT30_Checksum_Status = Read_results[2];
+                SHT31_Status = Read_results[0]*256 + Read_results[1]; 
+                SHT31_Checksum_Status = Read_results[2];
                 // Last Command NOT Received (bit1) OR Checksum Error (bit0) OR Heater ON (bit 13) --> Command Error
-                if ( (SHT30_Status & 0x2003) != 0)               
+                if ( (SHT31_Status & 0x2003) != 0)               
                 {
                     Sensor_Measurement_Error = TRUE;
                     // Set HARD RESET
@@ -989,7 +1005,7 @@ void I2C_Manager (void)
 
 /*
 *//*=====================================================================*//**
-**      @brief SHT30 Hard reset Procedure 
+**      @brief SHT31 Hard reset Procedure 
 **
 **      @param unsigned chat 'type': ON  --> Hard Reset Activation
 **                                   OFF --> StopHard Reset   
@@ -1007,6 +1023,7 @@ unsigned int ResetProcedure (unsigned char type)
     {
         StopTimer(T_HARD_RESET);
         TMP_RESET = 1;
+        reset_procedure = RESET_ON;
         return TRUE;
     }
     else 

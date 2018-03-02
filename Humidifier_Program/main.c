@@ -22,7 +22,8 @@
 #pragma config GSS = DISABLED           // General Segment Code-Protect Level bits (No Protection (other than GWRP))
 #pragma config CWRP = OFF               // Configuration Segment Write-Protect bit (Configuration Segment may be written)
 #pragma config CSS = DISABLED           // Configuration Segment Code-Protect Level bits (No Protection (other than CWRP))
-#pragma config AIVTDIS = ON             // Alternate Interrupt Vector Table bit (Enabled AIVT)
+//#pragma config AIVTDIS = ON             // Alternate Interrupt Vector Table bit (Enabled AIVT)
+#pragma config AIVTDIS = OFF             // Alternate Interrupt Vector Table bit (Enabled AIVT)
 
 // FBSLIM
 #pragma config BSLIM = 0x1FFF           // Boot Segment Flash Page Address Limit bits (Boot Segment Flash page address  limit)
@@ -93,6 +94,22 @@
 
 volatile const unsigned short *PtrTestResults = (unsigned short *) (__BL_TEST_RESULTS_ADDR);
 
+// -----------------------------------------------------------------------------
+//                      APPLICATION PROGRAM Service Routine
+void APPLICATION_T1_InterruptHandler(void);
+void APPLICATION_U1TX_InterruptHandler(void);
+void APPLICATION_U1RX_InterruptHandler(void);
+void APPLICATION_MI2C1_InterruptHandler(void);
+void APPLICATION_SPI1_InterruptHandler(void);
+void APPLICATION_SPI1TX_InterruptHandler(void);
+void APPLICATION_SPI1RX_InterruptHandler(void);
+
+void SPI1_InterruptHandler(void);
+void SPI1TX_InterruptHandler(void);
+void SPI1RX_InterruptHandler(void);
+
+void Pippo(void);
+// -----------------------------------------------------------------------------
 /** T Y P E D E F S ******************************************************************* */
 #if defined NO_BOOTLOADER
 
@@ -114,6 +131,27 @@ static DigInMicroSwitch DigInMSwitch;
 
 #else
 #endif
+
+/*
+**=============================================================================
+**
+**      Oggetto        : Funzione di servizio degli Interrupt NON usati dal 
+**                       Programma Applicativo
+**                                    
+**      Parametri      : void
+**
+**      Ritorno        : void
+**
+**      Vers. - autore : 1.0 Michele Abelli
+**
+**=============================================================================
+*/
+void Pippo(void)
+{
+   unsigned int a;
+   for (a = 0; a < 10; a++){}
+}
+
 
 int main(void)
 {
@@ -216,7 +254,6 @@ int main(void)
 		gestioneIO();
 		serialCommManager();
         I2C_Manager();
-        
         // LED management
         // ---------------------------------------------------------------------
         if (isColorCmdSetupOutput() )
@@ -258,5 +295,93 @@ int main(void)
  	}
 }
 
+// -----------------------------------------------------------------------------
+//                      APPLICATION PROGRAM Service Routine
+// ISR used when BOOT and APPLICATION PROGRAMS are both present
+#ifndef NO_BOOTLOADER
 
-
+// Timer 1 Interrupt handler 
+void __attribute__((address(__APPL_T1))) APPLICATION_T1_InterruptHandler(void)
+{
+    T1_InterruptHandler();
+}
+// UART1 RX Interrupt handler 
+void __attribute__((address(__APPL_U1RX1))) APPLICATION_U1RX_InterruptHandler(void)
+{
+    U1RX_InterruptHandler();
+}
+// UART1 TX Interrupt handler 
+void __attribute__((address(__APPL_U1TX1))) APPLICATION_U1TX_InterruptHandler(void)
+{
+    U1TX_InterruptHandler();
+}
+// I2C1 Interrupt handler 
+void __attribute__((address(__APPL_MI2C1))) APPLICATION_MI2C1_InterruptHandler(void)
+{
+    MI2C1_InterruptHandler();
+}
+// SPI1 Interrupt handler 
+void __attribute__((address(__APPL_SPI1))) APPLICATION_SPI1_InterruptHandler(void)
+{
+    SPI1_InterruptHandler();
+}
+// SPI1TX Interrupt handler 
+void __attribute__((address(__APPL_SPI1TX))) APPLICATION_SPI1TX_InterruptHandler(void)
+{
+    SPI1TX_InterruptHandler();
+}
+// SPI1RX Interrupt handler 
+void __attribute__((address(__APPL_SPI1RX))) APPLICATION_SPI1RX_InterruptHandler(void)
+{
+   SPI1RX_InterruptHandler();
+}
+// -----------------------------------------------------------------------------
+// ISR used when only Application Program runs
+#else
+void __attribute__((__interrupt__,auto_psv)) _T1Interrupt(void)
+{
+   T1_InterruptHandler();
+}
+void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void)
+{
+   U1RX_InterruptHandler();
+}
+void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void)
+{
+   U1TX_InterruptHandler();
+}
+void __attribute__ ( ( interrupt, no_auto_psv ) ) _MI2C1Interrupt ( void )
+{
+   MI2C1_InterruptHandler();
+} 
+void __attribute__ ( ( interrupt, no_auto_psv ) ) _SPI1Interrupt ( void )
+{
+    SPI1_InterruptHandler();
+}
+void __attribute__ ( ( interrupt, no_auto_psv ) ) _SPI1TXInterrupt ( void )
+{
+    SPI1TX_InterruptHandler();
+}
+void __attribute__ ( ( interrupt, no_auto_psv ) ) _SPI1RXInterrupt ( void )
+{
+   SPI1RX_InterruptHandler();
+}
+// -----------------------------------------------------------------------------
+#endif
+//                      APPLICATION PROGRAM Service Routine NOT USED
+// SPI1 GENERAL Interrupt handler 
+void SPI1_InterruptHandler(void)
+{
+    Pippo();
+}
+// SPI1TX Interrupt handler 
+void SPI1TX_InterruptHandler(void)
+{
+    Pippo();
+}
+// SPI1RX Interrupt handler 
+void SPI1RX_InterruptHandler(void)
+{
+    Pippo();
+}
+// -----------------------------------------------------------------------------

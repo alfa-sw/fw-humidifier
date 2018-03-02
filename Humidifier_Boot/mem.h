@@ -28,9 +28,15 @@
 /* This location is used to forward the 485 index to the application. */
 #define __SLAVE_INDEX_ADDR (__APPL_DATA_BASE - 0x2)
 
+/* This location is used to store whiche program is actually active: BOOT or APPLICATION PROGRAM */
+#define __PROGRAM_ACTIVE_ADDR (__APPL_DATA_BASE - 0x4)
+
 /* -- Interrupt handlers ----------------------------------------------------- */
 #define  __APPL_T1     (__APPL_CODE_BASE + 0x1A)  // 0x201A 
 #define  __APPL_U1RX1  (__APPL_CODE_BASE + 0x24)  // 0x2024 
 #define  __APPL_U1TX1  (__APPL_CODE_BASE + 0x2E)  // 0x202E
 #define  __APPL_MI2C1  (__APPL_CODE_BASE + 0x38)  // 0x2038 
+#define  __APPL_SPI1   (__APPL_CODE_BASE + 0x42)  // 0x2042
+#define  __APPL_SPI1TX (__APPL_CODE_BASE + 0x4C)  // 0x204C
+#define  __APPL_SPI1RX (__APPL_CODE_BASE + 0x56)  // 0x2056
 #endif /* MEM_H_DEFINED */

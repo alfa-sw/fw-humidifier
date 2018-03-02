@@ -54,9 +54,9 @@
    /* 8 */ T_HUM_CAP_CLOSED_PERIOD,
    /* 9 */ T_DOS_PERIOD,
    /* 10 */T_HARD_RESET,
-   /* 11 */T_SHT30_MEASUREMENT,
-   /* 12 */T_SHT30_WRITE_TIMEOUT,
-   /* 13 */T_SHT30_HEATER,
+   /* 11 */T_SHT31_MEASUREMENT,
+   /* 12 */T_SHT31_WRITE_TIMEOUT,
+   /* 13 */T_SHT31_HEATER,
    /* 14 */T_LED_DURATION_ON,
    N_TIMERS
  };
@@ -77,10 +77,10 @@
 /* 9 */	# define DELAY_DOS_PERIOD	500			
 // Waiting Reset Time: 2 msec
 /* 10 */# define DELAY_HARD_RESET 1  
-// Waiting SHT30 Measurement: 8 msec
-/* 11 */# define DELAY_SHT30_MEASUREMENT 4
-// Timeout on SHT30 Write Command: 4 msec
-/* 12 */# define DELAY_SHT30_TIMEOUT 2
+// Waiting SHT31 Measurement: 8 msec
+/* 11 */# define DELAY_SHT31_MEASUREMENT 4
+// Timeout on SHT31 Write Command: 4 msec
+/* 12 */# define DELAY_SHT31_TIMEOUT 2
 // Wait 10" with HEATER ON
  /* 13*/# define DELAY_WAIT_HEATER 5000
 // LED Duration ON 10"
@@ -102,6 +102,7 @@ extern void StopTimer(unsigned char Timer);
 extern unsigned char NotRunningTimer(unsigned char Timer);
 extern signed char StatusTimer(unsigned char Timer);
 extern void InitTMR(void);
+extern void T1_InterruptHandler(void);
 
 #endif
 

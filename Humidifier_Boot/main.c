@@ -15,11 +15,13 @@
 #pragma config BWRP = OFF               // Boot Segment Write-Protect bit (Boot Segment may be written)
 #pragma config BSS = DISABLED           // Boot Segment Code-Protect Level bits (No Protection (other than BWRP))
 #pragma config BSEN = OFF               // Boot Segment Control bit (No Boot Segment)
+//#pragma config BSEN = ON    // Boot Segment Control bit->Boot Segment size determined by FBSLIM
 #pragma config GWRP = OFF               // General Segment Write-Protect bit (General Segment may be written)
 #pragma config GSS = DISABLED           // General Segment Code-Protect Level bits (No Protection (other than GWRP))
 #pragma config CWRP = OFF               // Configuration Segment Write-Protect bit (Configuration Segment may be written)
 #pragma config CSS = DISABLED           // Configuration Segment Code-Protect Level bits (No Protection (other than CWRP))
-#pragma config AIVTDIS = ON             // Alternate Interrupt Vector Table bit (Enabled AIVT)
+//#pragma config AIVTDIS = ON             // Alternate Interrupt Vector Table bit (Enabled AIVT)
+#pragma config AIVTDIS = OFF             // Alternate Interrupt Vector Table bit (Disabeld AIVT)
 
 // FBSLIM
 #pragma config BSLIM = 0x1FFF           // Boot Segment Flash Page Address Limit bits (Boot Segment Flash page address  limit)
@@ -28,25 +30,34 @@
 
 // FOSCSEL
 #pragma config FNOSC = PRIPLL           // Oscillator Source Selection (Primary Oscillator with PLL module (XT + PLL, HS + PLL, EC + PLL))
+// We can use 96MHZ PLL OR PLLX4: both are correct
 #pragma config PLLMODE = PLL96DIV2      // PLL Mode Selection (96 MHz PLL. Oscillator input is divided by 2 (8 MHz input))
-#pragma config IESO = OFF               // Two-speed Oscillator Start-up Enable bit (Start up with user-selected oscillator source)
+//#pragma config PLLMODE = PLL4X          // PLL Mode Selection->4x PLL selected
+//#pragma config IESO = OFF             // Two-speed Oscillator Start-up Enable bit (Start up with user-selected oscillator source)
+#pragma config IESO = ON                // Two-speed Oscillator Start-up Enable bit->Start up device with FRC, then switch to user-selected oscillator source
 
 // FOSC
 #pragma config POSCMD = XT              // Primary Oscillator Mode Select bits (XT Crystal Oscillator Mode)
 #pragma config OSCIOFCN = ON            // OSC2 Pin Function bit (OSC2 is general purpose digital I/O pin)
-#pragma config SOSCSEL = ON             // SOSC Power Selection Configuration bits (SOSC is used in crystal (SOSCI/SOSCO) mode)
+#pragma config SOSCSEL = OFF            // SOSC Power Selection Configuration bits->Digital (SCLKI) mode
+
 #pragma config PLLSS = PLL_PRI          // PLL Secondary Selection Configuration bit (PLL is fed by the Primary oscillator)
-#pragma config IOL1WAY = OFF            // Peripheral pin select configuration bit (Allow multiple reconfigurations)
+//#pragma config IOL1WAY = ON             // Peripheral pin select configuration bit->Allow only one reconfiguration
 #pragma config FCKSM = CSECMD           // Clock Switching Mode bits (Clock switching is enabled,Fail-safe Clock Monitor is disabled)
 
 // FWDT
-#pragma config WDTPS = PS16             // Watchdog Timer Postscaler bits (1:16)
-#pragma config FWPSA = PR32             // Watchdog Timer Prescaler bit (1:32)
-#pragma config FWDTEN = ON              // Watchdog Timer Enable bits (WDT Enabled)
-#pragma config WINDIS = OFF             // Watchdog Timer Window Enable bit (Watchdog Timer in Non-Window mode)
-#pragma config WDTWIN = WIN25           // Watchdog Timer Window Select bits (WDT Window is 25% of WDT period)
-#pragma config WDTCMX = WDTCLK          // WDT MUX Source Select bits (WDT clock source is determined by the WDTCLK Configuration bits)
-#pragma config WDTCLK = LPRC            // WDT Clock Source Select bits (WDT uses LPRC)
+// 2sec
+//#pragma config WDTPS = PS128          // Watchdog Timer Postscaler bits->1:128
+//#pragma config FWPSA = PR512          // Watchdog Timer Prescaler bit->1:512
+// 512msec
+#pragma config WDTPS = PS128             // Watchdog Timer Postscaler bits->1:128
+#pragma config FWPSA = PR128            // Watchdog Timer Prescaler bit->1:128
+//#pragma config FWDTEN = ON            // Watchdog Timer Enable bits->WDT Enabled
+#pragma config FWDTEN = ON_SWDTEN       // Watchdog Timer Enable bits->WDT Enabled/Disabled (controlled using SWDTEN bit)
+#pragma config WINDIS = OFF             // Watchdog Timer Window Enable bit->Watchdog Timer in Non-Window mode
+#pragma config WDTWIN = WIN25           // Watchdog Timer Window Select bits->WDT Window is 25% of WDT period
+#pragma config WDTCMX = WDTCLK          // WDT MUX Source Select bits->WDT clock source is determined by the WDTCLK Configuration bits
+#pragma config WDTCLK = SYSCLK          // WDT Clock Source Select bits->WDT uses system clock when active, LPRC while in Sleep mode
 
 // FPOR
 #pragma config BOREN = OFF              // Brown Out Enable bit (Brown Out Disabled)
@@ -54,7 +65,7 @@
 #pragma config DNVPEN = ENABLE          // Downside Voltage Protection Enable bit (Downside protection enabled using ZPBOR when BOR is inactive)
 
 // FICD
-#pragma config ICS = PGD2               // ICD Communication Channel Select bits (Communicate on PGEC2 and PGED2)
+#pragma config ICS = PGD3               // ICD Communication Channel Select bits (Communicate on PGEC3 and PGED3)
 #pragma config JTAGEN = OFF             // JTAG Enable bit (JTAG is disabled)
 
 // FDEVOPT1
@@ -109,7 +120,7 @@ const BootloaderPointers_T __attribute__ ((space(prog), address (0x200))) Bootlo
 };
 
 const unsigned long __attribute__ ((space(psv), address (__BL_SW_VERSION)))
-dummy0 = BL_SW_VERSION; /* 0x0150 */
+dummy0 = BL_SW_VERSION; /* 0x0170 */
 
 const unsigned short __attribute__ ((space(psv), address (__BL_CODE_CRC)))
 dummy1 = 0; /* this will be changed in the .hex file by the CRC helper */
@@ -118,7 +129,6 @@ __psv__ const unsigned short *ptrBLCRCFlash = (unsigned short *) __BL_CODE_CRC;
 
 static void BL_Init(void);
 void BL_UserInit(void);
-//static char CheckApplicationPresence(DWORD address);
 char CheckApplicationPresence(DWORD address);
 
 void jump_to_appl();
@@ -129,6 +139,24 @@ static void BL_IORemapping(void);
 void BL_inputManager(void);
 //static unsigned char BL_FilterSensorInput(unsigned char InputFilter);
 static void BL_ReadDigInStatus(void);
+
+// -----------------------------------------------------------------------------
+//                      APPLICATION PROGRAM Service Routine
+void APPLICATION_T1_InterruptHandler(void);
+void APPLICATION_U1TX_InterruptHandler(void);
+void APPLICATION_U1RX_InterruptHandler(void);
+void APPLICATION_MI2C1_InterruptHandler(void);
+void APPLICATION_SPI1_InterruptHandler(void);
+void APPLICATION_SPI1TX_InterruptHandler(void);
+void APPLICATION_SPI1RX_InterruptHandler(void);
+//                      BOOT Service Routine NOT USED
+void BOOT_MI2C1_InterruptHandler(void);
+void BOOT_SPI1_InterruptHandler(void);
+void BOOT_SPI1TX_InterruptHandler(void);
+void BOOT_SPI1RX_InterruptHandler(void);
+
+void Pippo(void);
+// -----------------------------------------------------------------------------
 
 /** T Y P E D E F S ******************************************************************* */
 typedef union {
@@ -145,15 +173,12 @@ typedef union {
   } Bit;
 } DigInStatusType;
 
-/** D A T A *************************************************************************** */
-//static signed char index_0, index_1;
-//static unsigned char n_filter;
-//static unsigned char FILTRAGGIO_LOW[FILTER_WINDOW];
-//static unsigned char DummyOutput_low,shift;
-//static unsigned char zero_counter, one_counter, ChangeStatus, Out_Status;
+DWORD_VAL ReadFlashMemory;
+
+/** D A T A ****************************************************************** */
 static DigInStatusType BL_DigInStatus, BL_DigInNotFiltered;
 
-/** T E X T *************************************************************************** */
+/** T E X T ****************************************************************** */
 void BL_GestStandAlone(void)
 /*
 **=============================================================================
@@ -186,6 +211,27 @@ void BL_GestStandAlone(void)
   } /* (BLState.level == INIT) */
 }
 
+/*
+**=============================================================================
+**
+**      Oggetto        : Funzione di servizio degli Interrupt NON usati dal 
+**                       BootLoader
+**                                    
+**      Parametri      : void
+**
+**      Ritorno        : void
+**
+**      Vers. - autore : 1.0 Michele Abelli
+**
+**=============================================================================
+*/
+void Pippo(void)
+{
+   unsigned int a;
+   for (a = 0; a < 10; a++){}
+}
+ 
+ 
 unsigned short BL_CRCarea(unsigned char *pointer, unsigned short n_char,unsigned short CRCinit)
 /**=============================================================================
 **
@@ -233,8 +279,10 @@ unsigned short BL_CRCarea(unsigned char *pointer, unsigned short n_char,unsigned
     CRCinit = ( (CRCinit >> 8) & 0x00FF) ^ BL_CRC_TABLE[index];
     pointer = pointer + 1;
 
+#if ! defined __DEBUG	
     /* Reset Watchdog*/
     ClrWdt();
+#endif	
   } /* end for */
 
   /* restore the PSVPAG for the compiler-managed PSVPAG */
@@ -290,9 +338,11 @@ unsigned short BL_CRCareaFlash(unsigned long address, unsigned long n_word,unsig
 
   for (i = 0; i < n_word; i++) {
 
+#if ! defined __DEBUG	
     /* Reset Watchdog*/
     ClrWdt();
-
+#endif	
+  
     wTBLPAGSave = TBLPAG;
     TBLPAG = ((DWORD_VAL*)&address)->w[1];
 
@@ -333,9 +383,12 @@ unsigned short BL_CRCareaFlash(unsigned long address, unsigned long n_word,unsig
  * Note:            None
  *******************************************************************/
 static void BL_Init(void)
-{
+{ 
   /* Use Alternate Vector Table */
-  INTCON2bits.AIVTEN = 1;
+  //INTCON2bits.AIVTEN = 1;
+    
+  // Enable nested interrupts
+  INTCON1bits.NSTDIS = 0;
 
   BL_IORemapping();
   BL_TimerInit();
@@ -374,6 +427,38 @@ void BL_UserInit(void)
 
 static void BL_IORemapping(void)
 {
+    /****************************************************************************
+     * Setting the Output Latch SFR(s)
+     ***************************************************************************/
+    LATA = 0x0000;
+    LATB = 0x0000;
+    LATC = 0x0000;
+
+    /****************************************************************************
+     * Setting the Weak Pull Up and Weak Pull Down SFR(s)
+     ***************************************************************************/
+    IOCPDA = 0x0000;
+    IOCPDB = 0x0000;
+    IOCPDC = 0x0000;
+    IOCPUA = 0x0000;
+    IOCPUB = 0x0000;
+    IOCPUC = 0x0000;
+
+    /****************************************************************************
+     * Setting the Open Drain SFR(s)
+     ***************************************************************************/
+    ODCA = 0x0000;
+    ODCB = 0x0000;
+    ODCC = 0x0000;
+
+    /****************************************************************************
+     * Setting the Analog/Digital Configuration SFR(s)
+     ***************************************************************************/
+    // Set AN0 and AN1
+    ANSA = 0x0003;
+    ANSB = 0x0000;
+    ANSC = 0x0000;
+
     // Set as Digital I/O
     ANSBbits.ANSB2 = 0; // RB2
     ANSBbits.ANSB3 = 0; // RB3
@@ -382,7 +467,13 @@ static void BL_IORemapping(void)
     ANSCbits.ANSC1 = 0; // RC1      
     ANSCbits.ANSC2 = 0; // RC2       
     
+    /****************************************************************************
+     * Setting the GPIO Direction SFR(s)
+     ***************************************************************************/
     // Initialization function to define IO
+    //TRISA = 0x069F;
+    //TRISB = 0xA2E4;
+    //TRISC = 0x03FF;
 	TRISBbits.TRISB0 = OUTPUT; // UART_DE
 	TRISBbits.TRISB1 = OUTPUT; // TMP_RESET
 	TRISBbits.TRISB2 = INPUT;  // TMP_ALERT 
@@ -395,26 +486,22 @@ static void BL_IORemapping(void)
 	TRISBbits.TRISB11 = OUTPUT;// SPI_SCK
 	TRISBbits.TRISB12 = OUTPUT;// SPI_SD0
 	TRISBbits.TRISB13 = INPUT; // SPI_SDI
-	TRISBbits.TRISB14 = OUTPUT;// UART_TX
+  	TRISBbits.TRISB14 = OUTPUT;// UART_TX
 	TRISBbits.TRISB15 = INPUT; // UART_RX
-
+    
 	TRISCbits.TRISC0 = INPUT; // Dip Switch 1
 	TRISCbits.TRISC1 = INPUT; // Dip Switch 2
 	TRISCbits.TRISC2 = INPUT; // Dip Switch 3
 	TRISCbits.TRISC3 = INPUT; // Dip Switch 4
 	TRISCbits.TRISC4 = INPUT; // Dip Switch 5
 	TRISCbits.TRISC5 = INPUT; // Dip Switch 6
-
+    
 	TRISAbits.TRISA0 = INPUT; // AN0
 	TRISAbits.TRISA1 = INPUT; // AN1
 	TRISAbits.TRISA2 = INPUT; // OSC0
 	TRISAbits.TRISA3 = INPUT; // OSC1
 	TRISAbits.TRISA8 = OUTPUT;// LED	
 
-    // UART_RX --> RP15 
-    RPINR18bits.U1RXR = 15;
-    // UART_TX --> RP14   
-    _RP14R = 3;
 }/* end IORemapping() */
 
 /********************************************************************
@@ -440,8 +527,8 @@ static void BL_IORemapping(void)
 //static char CheckApplicationPresence(DWORD address)
 char CheckApplicationPresence(DWORD address)
 {
-  if (ReadProgramMemory(address) == APPL_FLASH_MEMORY_ERASED_VALUE)
-    return BL_STAND_ALONE;
+//  if (ReadProgramMemory(address) == APPL_FLASH_MEMORY_ERASED_VALUE)
+//    return BL_STAND_ALONE;
 
   return BL_NO_STAND_ALONE;
 } /* end CheckApplicationPresence() */
@@ -605,16 +692,15 @@ static void BL_ReadDigInStatus(void)
   BL_DigInNotFiltered.byte = 47;
 
 #else
-  
-    /* Read 485 address bits from dip-switch on S1 */
-	BL_DigInNotFiltered.Bit.StatusType0 = SW1;
-	BL_DigInNotFiltered.Bit.StatusType1 = SW2;
-	BL_DigInNotFiltered.Bit.StatusType2 = SW3;
-	BL_DigInNotFiltered.Bit.StatusType3 = SW4;
-	BL_DigInNotFiltered.Bit.StatusType4 = SW5;
-	BL_DigInNotFiltered.Bit.StatusType5 = SW6;
+	/* Read 485 address bits from dip-switch on S1 */
+	BL_DigInNotFiltered.Bit.StatusType0 = ~SW3;
+	BL_DigInNotFiltered.Bit.StatusType1 = ~SW2;
+	BL_DigInNotFiltered.Bit.StatusType2 = ~SW1;
+	BL_DigInNotFiltered.Bit.StatusType3 = ~SW4;
+	BL_DigInNotFiltered.Bit.StatusType4 = ~SW5;
+	BL_DigInNotFiltered.Bit.StatusType5 = ~SW6;
 	BL_DigInNotFiltered.Bit.StatusType6 = 0;
-	BL_DigInNotFiltered.Bit.StatusType7 = 0;
+	BL_DigInNotFiltered.Bit.StatusType7 = 0;  
 #endif
 }
 
@@ -633,198 +719,57 @@ void BL_inputManager(void)
 */
 {
   BL_ReadDigInStatus();
-  //BL_DigInStatus.byte = BL_FilterSensorInput(BL_DigInNotFiltered.byte);
   BL_DigInStatus.byte = BL_DigInNotFiltered.byte;
 } /* end inputManager() */
 
-//static unsigned char BL_FilterSensorInput(unsigned char InputFilter)
-/*
-*//*=====================================================================*//**
-**
-**      @brief Filter of the keys state
-**
-**      @param InputFilter input
-**
-**      @retval ouput filtered
-**
-**
-**
-*//*=====================================================================*//**
-*/
-/*
-{
-  const unsigned char MASK_BIT_8[]={0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
-
-  unsigned char temp_uc;
-  signed char temp_sc;
-
-  // n_filter = Finestra campioni del filtro
-  if (n_filter < FILTER_WINDOW_LENGTH)   
-  {
-    n_filter++;
-  }
-  else
-  {
-    n_filter = 0;
-  }
-
-  FILTRAGGIO_LOW[n_filter] = InputFilter;
-
-  // INPUT_ARRAY = N° di ingressi da filtrare (8*2)
-  for(temp_uc = 0 ; temp_uc < INPUT_ARRAY ; temp_uc++) 
-  {
-    shift = MASK_BIT_8[temp_uc];
-
-    //ByteLow
-    for(temp_sc = FILTER_WINDOW_LOOP ; temp_sc >= 0 ; temp_sc--)
-    {
-      // Indice 0
-      index_0 = n_filter - temp_sc;
-      if (index_0 < 0)
-      {
-        index_0 += FILTER_WINDOW;
-      }
-      // Indice 1
-      index_1 = n_filter - temp_sc - 1;
-      if (index_1 < 0)
-      {
-        index_1 += FILTER_WINDOW;
-      }
-
-      if ( (FILTRAGGIO_LOW[index_0] ^ FILTRAGGIO_LOW[index_1]) & shift)
-      {
-        ChangeStatus++;
-      }
-
-      if ( FILTRAGGIO_LOW[index_0] & shift)
-      {
-        one_counter++;
-      }
-
-      else
-      {
-        zero_counter++;
-      }
-
-      if (temp_sc == 0)
-      {
-        if (FILTRAGGIO_LOW[index_1] & shift)
-        {
-          one_counter++;
-        }
-        else
-        {
-          zero_counter++;
-        }
-      }
-    }
-
-    if (ChangeStatus > MAX_CHANGE)
-    {
-      if (zero_counter >= MIN_COUNT)
-      {
-        Out_Status = LOW_FILTER;
-      }
-      else if (one_counter >= MIN_COUNT)
-      {
-        Out_Status = HIGH_FILTER;
-      }
-      else
-      {
-        Out_Status = ERRORE_FILTRO;
-      }
-    }
-    else
-    {
-      if (zero_counter > one_counter)
-      {
-        Out_Status = LOW_FILTER;
-      }
-      else
-      {
-        Out_Status = HIGH_FILTER;
-      }
-    }
-
-    zero_counter = COUNT_RESET;
-    one_counter  = COUNT_RESET;
-    ChangeStatus = COUNT_RESET;
-
-    // Segnale d'ingresso filtrato
-    if (Out_Status != ERRORE_FILTRO)
-    {
-      if (!temp_uc)
-      {
-        DummyOutput_low = Out_Status;
-      }
-      else
-      {
-        DummyOutput_low |= (Out_Status << temp_uc);
-      }
-    }
-  }
-  return (DummyOutput_low);
-} // end FilterSensorInput 
-*/
 static void hw_init(void)
 {
-	// Use 96MHz PLL	
+    // Manually generated
+// -----------------------------------------------------------------------------        
+    // We can use 96MHZ PLL OR PLLX4: both are correct
+	// 1. 96MHz PLL
     // POSTSCALER Clock Division = 1 --> Clock Frequency = 32MHZ - 16MIPS
     CLKDIVbits.CPDIV0 = 0;
+
     CLKDIVbits.CPDIV1 = 0;
     
-	/* unlock OSCCON register: 'NOSC' = primary oscillator with PLL module - 
-    'OSWEN' = 1 initiate an oscillator switch to the clock source specified by 'NOSC' */
+	// unlock OSCCON register: 'NOSC' = primary oscillator with PLL module - 
+    // 'OSWEN' = 1 initiate an oscillator switch to the clock source specified by 'NOSC' 
 	__builtin_write_OSCCONH(0x03);
 	__builtin_write_OSCCONL(0x01);
-	
+
 	/* wait for clock to stabilize: Primary Oscillator with PLL module (XTPLL, HSPLL))*/
 	while (OSCCONbits.COSC != 0b011)
-	  ;
-	
+	  ;	
 	/* wait for PLL to lock: PLL module is in lock, PLL start-up timer is satisfied */
 	while (OSCCONbits.LOCK != 1)
 	  ;
-}
-
-/** HALTs if a memory error is detected */
-static void memtest(void)
-{
-#define BIT_PATTERN_1(x)                        \
-  ((unsigned short)(x) % 4 ? 0xAA55 : 0x55AA)
-
-#define BIT_PATTERN_2(x)                        \
-  ((unsigned short)(x) % 4 ? 0x55AA : 0xAA55)
-
-  /* This memory check covers also the final locations of the BL
-     memory, to ensure slave index will be stored in a fully
-     functional memory. */
-#define __MEMCHK_BASE_PTR ((unsigned short *)(__SLAVE_INDEX_ADDR))
-#define __MEMCHK_END_PTR  ((unsigned short *)(__APPL_DATA_END ))
-  /* -- end of local macros ------------------------------------------------- */
-
-  //unsigned short *p;
-
-  /* Memory check, bit pattern 1, fwd sweeping */
-  //for (p = __MEMCHK_BASE_PTR; p < __MEMCHK_END_PTR; ++ p) {
-  //    (*p) = BIT_PATTERN_1(p);
-  //}
-
-  //for (p = __MEMCHK_BASE_PTR; p < __MEMCHK_END_PTR; ++ p) {
-  //  if ((*p) != BIT_PATTERN_1(p))
-  //    HALT();
-  //}
-
-  /* Memory check, bit pattern 2, fwd sweeping */
-  //for (p = __MEMCHK_BASE_PTR; p < __MEMCHK_END_PTR; ++ p) {
-  //  (*p) = BIT_PATTERN_2(p);
-  //}
-
-  //for (p = __MEMCHK_BASE_PTR; p < __MEMCHK_END_PTR; ++ p) {
-  //  if ((*p) != BIT_PATTERN_2(p))
-  //    HALT();
-  //}
- /* memtest() */
+    // Auto generate initialization
+// -----------------------------------------------------------------------------    
+/*
+	// 2. PLLX4
+    // CF no clock failure; NOSC PRIPLL; SOSCEN disabled; POSCEN disabled; CLKLOCK unlocked; OSWEN Switch is Complete; IOLOCK not-active; 
+    __builtin_write_OSCCONL((uint8_t) (0x0300 & 0x00FF));
+    // CPDIV 1:1; PLLEN disabled; DOZE 1:8; RCDIV FRC; DOZEN disabled; ROI disabled; 
+    CLKDIV = 0x3000;
+    // STOR disabled; STORPOL Interrupt when STOR is 1; STSIDL disabled; STLPOL Interrupt when STLOCK is 1; STLOCK disabled; STSRC SOSC; STEN disabled; TUN Center frequency; 
+    OSCTUN = 0x0000;
+    // ROEN disabled; ROSEL FOSC; ROSIDL disabled; ROSWEN disabled; ROOUT disabled; ROSLP disabled; 
+    REFOCONL = 0x0000;
+    // RODIV 0; 
+    REFOCONH = 0x0000;
+    // ROTRIM 0; 
+    REFOTRIML = 0x0000;
+    // DCOTUN 0; 
+    DCOTUN = 0x0000;
+    // DCOFSEL 8; DCOEN disabled; 
+    DCOCON = 0x0700;
+    // DIV 0; 
+    OSCDIV = 0x0000;
+    // TRIM 0; 
+    OSCFDIV = 0x0000;
+*/
+// -----------------------------------------------------------------------------    
 }
 //static void jump_to_appl()
 void jump_to_appl()
@@ -834,46 +779,45 @@ void jump_to_appl()
   slave_index = (unsigned short) BL_slave_id ;
 
   /* Use standard vector table */
-  INTCON2bits.AIVTEN = 0;
+  //INTCON2bits.AIVTEN = 0;
 
+  // Active Program: APPLICATION_PROGRAM
+  program_active = APPLICATION_PROGRAM;
+  
   /* jump to app code, won't return */
   __asm__ volatile ("goto " __APPL_GOTO_ADDR);
 }
 
 int main(void)
 {
-	/* Hardware initialization */
+	// Hardware initialization 
 	hw_init();
 
-	/* Memory test */
-	memtest();
-
-	/* BootLoader app initialization */
+	// BootLoader app initialization 
 	BL_Init();
 
-	/* Compare calculated CRC16 for BootLoader application executable
-	* with the expected value, stored at @ptrBLCRCFlash. This check is
-	*only possible when running the release build. */
-	/*
-	#ifndef __DEBUG
-		if ((*ptrBLCRCFlash) != BL_CRCareaFlash(__BL_CODE_BASE,
-                                          BYTES2WORDS(__BL_CODE_END -
-                                                      __BL_CODE_BASE), 0))
-    HALT();
-	#endif
-	*/
 	BL_inputManager();
+    
 	// Lettura dei Dip Switch
 	BL_slave_id = 0x00FF & BL_DigInStatus.byte;
 	//BL_slave_id = 43;
+    
+    // Active Program: BOOT
+    program_active = BOOT;
 
+#if ! defined __DEBUG	    
     ENABLE_WDT();
-
+#endif	
+    //EraseFlashPage(9);
+    //WriteFlashWord(0x2400, 0x000F0F0FL);
+    //ReadFlashMemory.Val = ReadProgramMemory((DWORD) (0x2400));   
 	do {
-		/* Kick the dog */
+#if ! defined __DEBUG	
+		/* Reset Watchdog*/
 		ClrWdt();
+#endif	
 
-		if(StatusTimer(T_FIRST_WINDOW) == T_ELAPSED) {
+    if(StatusTimer(T_FIRST_WINDOW) == T_ELAPSED) {
 			BL_GestStandAlone();
 			BL_serialCommManager();
 			BL_UART_ServerMg();
@@ -881,10 +825,141 @@ int main(void)
 	    BL_TimerMg();
 	} while(BL_StandAlone != BL_NO_STAND_ALONE);
 
-	Nop();
+    Nop();
 	Nop();
 
 	jump_to_appl(); /* goodbye */
 
-  return 0; /* unreachable, just get rid of compiler warning */
-} /* end main */
+  return 0; // unreachable, just get rid of compiler warning 
+} // end main 
+
+// -----------------------------------------------------------------------------
+// INTERRUPT Service Routine
+// TIMER 1
+void __attribute__((__interrupt__,auto_psv)) _T1Interrupt(void)
+{
+    // Clear Timer 1 Interrupt Flag
+    IFS0bits.T1IF = 0;                         
+    
+    // If BOOT is Active it runs 1 function, otherwise if APPLICATION_PROGRAM is acive it runs another
+    if (program_active == BOOT)
+      BOOT_T1_InterruptHandler();
+    else
+      APPLICATION_T1_InterruptHandler();
+}
+// UART1 RX 
+void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void)
+{
+    // If BOOT is Active it runs 1 function, otherwise if APPLICATION_PROGRAM is acive it runs another
+    if (program_active == BOOT)
+      BOOT_U1RX_InterruptHandler();
+    else
+      APPLICATION_U1RX_InterruptHandler();
+}
+// UART1 TX 
+void __attribute__((__interrupt__, no_auto_psv)) _U1TXInterrupt(void)
+{
+    // If BOOT is Active it runs 1 function, otherwise if APPLICATION_PROGRAM is acive it runs another
+    if (program_active == BOOT)
+      BOOT_U1TX_InterruptHandler();
+    else
+      APPLICATION_U1TX_InterruptHandler();
+}
+// I2C1
+void __attribute__ ( ( interrupt, no_auto_psv ) ) _MI2C1Interrupt ( void )
+{
+    IFS1bits.MI2C1IF = 0;
+
+    // If BOOT is Active it runs 1 function, otherwise if APPLICATION_PROGRAM is acive it runs another
+    if (program_active == BOOT)
+      BOOT_MI2C1_InterruptHandler();
+    else
+      APPLICATION_MI2C1_InterruptHandler();    
+}
+// SPI1 GENERAL
+void __attribute__ ( ( interrupt, no_auto_psv ) ) _SPI1Interrupt ( void )
+{
+    // If BOOT is Active it runs 1 function, otherwise if APPLICATION_PROGRAM is acive it runs another
+    if (program_active == BOOT)
+      BOOT_SPI1_InterruptHandler();
+    else
+      APPLICATION_SPI1_InterruptHandler();    
+}
+// SPI1 TX
+void __attribute__ ( ( interrupt, no_auto_psv ) ) _SPI1TXInterrupt ( void )
+{
+    // If BOOT is Active it runs 1 function, otherwise if APPLICATION_PROGRAM is acive it runs another
+    if (program_active == BOOT)
+      BOOT_SPI1TX_InterruptHandler();
+    else
+      APPLICATION_SPI1TX_InterruptHandler();    
+}
+// SPI1 RX
+void __attribute__ ( ( interrupt, no_auto_psv ) ) _SPI1RXInterrupt ( void )
+{
+    // If BOOT is Active it runs 1 function, otherwise if APPLICATION_PROGRAM is acive it runs another
+    if (program_active == BOOT)
+      BOOT_SPI1RX_InterruptHandler();
+    else
+      APPLICATION_SPI1RX_InterruptHandler();    
+}
+// -----------------------------------------------------------------------------
+//                      APPLICATION PROGRAM Service Routine
+// Timer 1 Interrupt handler 
+void __attribute__((address(__APPL_T1))) APPLICATION_T1_InterruptHandler(void)
+{
+    Pippo();
+}
+// UART1 RX Interrupt handler 
+void __attribute__((address(__APPL_U1RX1))) APPLICATION_U1RX_InterruptHandler(void)
+{
+    Pippo();
+}
+// UART1 TX Interrupt handler 
+void __attribute__((address(__APPL_U1TX1))) APPLICATION_U1TX_InterruptHandler(void)
+{
+    Pippo();
+}
+// I2C1 Interrupt handler 
+void __attribute__((address(__APPL_MI2C1))) APPLICATION_MI2C1_InterruptHandler(void)
+{
+    Pippo();
+}
+// SPI1 Interrupt handler 
+void __attribute__((address(__APPL_SPI1))) APPLICATION_SPI1_InterruptHandler(void)
+{
+    Pippo();
+}
+// SPI1TX Interrupt handler 
+void __attribute__((address(__APPL_SPI1TX))) APPLICATION_SPI1TX_InterruptHandler(void)
+{
+    Pippo();
+}
+// SPI1RX Interrupt handler 
+void __attribute__((address(__APPL_SPI1RX))) APPLICATION_SPI1RX_InterruptHandler(void)
+{
+    Pippo();
+}
+// -----------------------------------------------------------------------------
+//                      BOOT Service Routine NOT USED
+// I2C1 Interrupt handler 
+void BOOT_MI2C1_InterruptHandler(void)
+{
+    Pippo();
+}
+// SPI1 GENERAL Interrupt handler 
+void BOOT_SPI1_InterruptHandler(void)
+{
+    Pippo();
+}
+// SPI1TX Interrupt handler 
+void BOOT_SPI1TX_InterruptHandler(void)
+{
+    Pippo();
+}
+// SPI1RX Interrupt handler 
+void BOOT_SPI1RX_InterruptHandler(void)
+{
+    Pippo();
+}
+// -----------------------------------------------------------------------------

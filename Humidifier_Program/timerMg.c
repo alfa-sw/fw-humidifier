@@ -37,19 +37,12 @@ unsigned short Durata[N_TIMERS] = {
    /* 8 */ DELAY_HUM_CAP_CLOSED_PERIOD,
    /* 9 */ DELAY_DOS_PERIOD,
    /* 10 */DELAY_HARD_RESET,
-   /* 11 */DELAY_SHT30_MEASUREMENT,
-   /* 12 */DELAY_SHT30_TIMEOUT,
+   /* 11 */DELAY_SHT31_MEASUREMENT,
+   /* 12 */DELAY_SHT31_TIMEOUT,
    /* 13 */DELAY_WAIT_HEATER,
    /* 14 */DELAY_LED,  
    /* 15 */           
 };
-
-#ifndef NO_BOOTLOADER
-void __attribute__((address(__APPL_T1)))APP_T1Interrupt(void)
-{
-   __asm("goto __T1Interrupt");
-}
-#endif
 
 void InitTMR(void)
 {
@@ -177,7 +170,8 @@ signed char StatusTimer(unsigned char Timer)
 	return TimStr[Timer].Flg;
 }
 
-void __attribute__((__interrupt__,auto_psv)) _T1Interrupt(void)
+//void __attribute__((__interrupt__,auto_psv)) _T1Interrupt(void)
+void T1_InterruptHandler(void)
 {
 	IFS0bits.T1IF = 0;                          //Clear Timer 1 Interrupt Flag
 

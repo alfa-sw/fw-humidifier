@@ -324,4 +324,7 @@ extern void BL_serialCommManager(void);
 
 extern void BL_stuff_byte(unsigned char *buf, unsigned char *ndx, char c);
 
+extern void BOOT_U1TX_InterruptHandler(void);
+extern void BOOT_U1RX_InterruptHandler(void);
+
 #endif

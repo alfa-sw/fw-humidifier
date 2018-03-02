@@ -4,15 +4,15 @@
   <executable name="dist/default/production/Humidifier_Boot.production.elf">
     <memory name="data">
       <units>bytes</units>
-      <length>16384</length>
-      <used>394</used>
-      <free>15990</free>
+      <length>2048</length>
+      <used>402</used>
+      <free>1646</free>
     </memory>
     <memory name="program">
       <units>bytes</units>
-      <length>66432</length>
-      <used>9027</used>
-      <free>57405</free>
+      <length>11520</length>
+      <used>9405</used>
+      <free>2115</free>
     </memory>
   </executable>
 </project>
