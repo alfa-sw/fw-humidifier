@@ -18,6 +18,7 @@
 #include <xc.h>
 #include <stdlib.h>
 
+const uint16_t POLYNOMIAL = 0x131; //P(x)=x^8+x^5+x^4+1 = 100110001
 /*
 *//*=====================================================================*//**
 **
@@ -418,7 +419,7 @@ void I2C1_MasterWrite(
     {
         I2C1_MasterWriteTRBBuild(&trBlock, pdata, length, address);
         I2C1_MasterTRBInsert(1, &trBlock, pstatus);
-*pstatus = I2C1_MESSAGE_COMPLETE;
+//*pstatus = I2C1_MESSAGE_COMPLETE;
     }
     else
     {
@@ -441,6 +442,7 @@ void I2C1_MasterRead(
     {
         I2C1_MasterReadTRBBuild(&trBlock, pdata, length, address);
         I2C1_MasterTRBInsert(1, &trBlock, pstatus);
+/*
 *pstatus = I2C1_MESSAGE_COMPLETE; 
 *pdata   = 96;
 *(pdata+1)   = 100;
@@ -448,7 +450,8 @@ void I2C1_MasterRead(
 *(pdata+3)   = 20;
 *(pdata+4)   = 25;
 *(pdata+5)   = 30;
-length = 6;        
+length = 6;       
+*/
     }
     else
     {
@@ -679,7 +682,10 @@ void I2C_Manager (void)
     uint8_t result;
     uint8_t writeBuffer[2];
     uint8_t Read_results[6];
-    
+    uint8_t crc;
+    uint8_t byteCtr;
+    uint8_t bits;
+
     switch (Status_I2C)
     {
         case I2C_IDLE:
@@ -697,7 +703,7 @@ void I2C_Manager (void)
 // -----------------------------------------------------------------------------
         // Write Temperature Humidity Command to SHT31
         case I2C_WRITE_SINGLE_SHOT_DATA_ACQUISITION:
-            // Build the write buffer first: 'SINGLE SHOT DATA ACQUISITION' - "0x240B"
+            // Build the write buffer first: 'SINGLE SHOT DATA ACQUISITION' - "0x240B": Clock Stretching disabled + Medium Repeatability
             writeBuffer[0] = 0x24;          
             writeBuffer[1] = 0x0B;            
             result = Write_I2C_Command (writeBuffer);
@@ -736,10 +742,57 @@ void I2C_Manager (void)
             else
             {                    
                 SHT31_Raw_Temperature = Read_results[0]*256 + Read_results[1]; 
+//                Read_results[0] = 0xBE;
+//                Read_results[1] = 0xEF;                
                 SHT31_Checksum_Temperature = Read_results[2];
-                SHT31_Raw_Humidity = Read_results[3]*256 + Read_results[4]; 
-                SHT31_Checksum_Humidity = Read_results[5];                
-                Status_I2C = I2C_CALCULATE_HUMIDITY_TEMPERATURE;                        
+                // Verify Temperature Checksum
+                // Calculates 8-Bit checksum with given polynomial
+                crc = 0xFF;
+                for (byteCtr = 0; byteCtr < 2; ++byteCtr)
+                { 
+                    crc ^= (Read_results[byteCtr]);
+                    for (bits = 8; bits > 0; --bits)
+                    { 
+                        if (crc & 0x80) 
+                            crc = (crc << 1) ^ POLYNOMIAL;
+                        else 
+                            crc = (crc << 1);
+                    }
+                }
+
+                if (crc != SHT31_Checksum_Temperature) 
+                {    
+                    Sensor_Measurement_Error = TRUE;
+                    // Set HARD RESET
+                    Status_I2C = I2C_HARD_RESET;        
+                }
+                else
+                {    
+                    SHT31_Raw_Humidity = Read_results[3]*256 + Read_results[4]; 
+                    SHT31_Checksum_Humidity = Read_results[5];                
+                    // Verify Humidity Checksum
+                    // Calculates 8-Bit checksum with given polynomial
+                    crc = 0xFF;
+                    for (byteCtr = 3; byteCtr < 5; ++byteCtr)
+                    { 
+                        crc ^= (Read_results[byteCtr]);
+                        for (bits = 8; bits > 0; --bits)
+                        { 
+                            if (crc & 0x80) 
+                                crc = (crc << 1) ^ POLYNOMIAL;
+                            else 
+                                crc = (crc << 1);
+                        }
+                    }
+                    if (crc != SHT31_Checksum_Humidity) 
+                    {    
+                        Sensor_Measurement_Error = TRUE;
+                        // Set HARD RESET
+                        Status_I2C = I2C_HARD_RESET;        
+                    }
+                    else
+                        Status_I2C = I2C_CALCULATE_HUMIDITY_TEMPERATURE;
+                }                
             }            
         break;
 
@@ -812,6 +865,7 @@ void I2C_Manager (void)
                     Sensor_Measurement_Error = FALSE;
                     Start_New_Measurement = FALSE;
                     Status_I2C = I2C_IDLE;
+//                    Status_I2C = I2C_WRITE_HEATER_ON;
                 }
             }            
         break;

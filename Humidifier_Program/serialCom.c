@@ -450,6 +450,12 @@ void MakeHumidifierMessage(uartBuffer_t *txBuffer, unsigned char slave_id)
   // Pump State
   stuff_byte(txBuffer->buffer, &idx, LSB_LSW(HumidifierAct.Pump_state));
 
+  // Led State
+  stuff_byte(txBuffer->buffer, &idx, LSB_LSW(HumidifierAct.Led_state));
+
+  // Riscaldatore State
+  stuff_byte(txBuffer->buffer, &idx, LSB_LSW(HumidifierAct.Riscaldatore_state));
+
   /* crc, pktlen taken care of here */
   unionWord_t crc;													  
 																
@@ -502,7 +508,8 @@ void DecodeHumidifierMessage(uartBuffer_t *rxBuffer, unsigned char slave_id)
   {
   case CONTROLLO_PRESENZA:
     HumidifierAct.Autocap_Status = rxBuffer->buffer[idx ++];
-    HumidifierAct.Autocap_Status = AUTOCAP_CLOSED;
+HumidifierAct.Autocap_Status = AUTOCAP_CLOSED;
+//HumidifierAct.Autocap_Status = AUTOCAP_OPEN;
     break;
 
   case SETUP_PARAMETRI_UMIDIFICATORE:  
@@ -535,13 +542,9 @@ void DecodeHumidifierMessage(uartBuffer_t *rxBuffer, unsigned char slave_id)
     tmpWord.byte[1] = rxBuffer->buffer[idx ++];
     HumidifierAct.Temp_Period = tmpWord.sword;
 	// LOW Temperature threshold value 
-    tmpWord.byte[0] = rxBuffer->buffer[idx ++];
-    tmpWord.byte[1] = rxBuffer->buffer[idx ++];
-    HumidifierAct.Temp_T_LOW = tmpWord.sword;
+	HumidifierAct.Temp_T_LOW = rxBuffer->buffer[idx ++];
 	// HIGH Temperature threshold value 
-    tmpWord.byte[0] = rxBuffer->buffer[idx ++];
-    tmpWord.byte[1] = rxBuffer->buffer[idx ++];
-    HumidifierAct.Temp_T_HIGH = tmpWord.sword;	
+	HumidifierAct.Temp_T_HIGH = rxBuffer->buffer[idx ++];
 	// Heater Activation 
     HumidifierAct.Heater = rxBuffer->buffer[idx ++];
 	// Heater Hysteresis 
@@ -549,7 +552,7 @@ void DecodeHumidifierMessage(uartBuffer_t *rxBuffer, unsigned char slave_id)
     break;
 
   case IMPOSTA_USCITE_UMIDIFICATORE:
-    // Type of Peripheral: 0 = Nebulizer - 1 = Pump - 2 = Led
+    // Type of Peripheral: bit0 = Nebulizer - bit1 = Pump - bit2 = Led - bit3 = Riscaldatore
 	PeripheralAct.Peripheral_Types.bytePeripheral = rxBuffer->buffer[idx ++];
 	// Peripheral Action (ON / OFF)
 	PeripheralAct.Action = rxBuffer->buffer[idx ++];

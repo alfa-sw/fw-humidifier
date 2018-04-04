@@ -19,6 +19,7 @@
 // -----------------------------------------------------------------------------
 #define OFF 0
 #define ON 1
+#define DONE 2
 
 #define HUMIDIFIER_DISABLE	0
 #define HUMIDIFIER_ENABLE	1
@@ -38,20 +39,21 @@
 #define TEMP_ENABLE			1
 
 #define TEMPERATURE_TYPE_0  0 // SENSIRION SHT31
+#define TEMPERATURE_TYPE_1  1 // MICROCHIP TC72
 
 #define TEMP_PERIOD			300 // 5 min
 #define MIN_TEMP_PERIOD		10
 
 #define TEMP_T_LOW			10
 #define TEMP_T_HIGH			20
-#define HEATER_TEMP         20
-#define HEATER_HYSTERESIS   1
+#define HEATER_TEMP         10
+#define HEATER_HYSTERESIS   1 
 
-#define POMPA    			1
-#define NEBULIZER			2
-#define POMPA_AND_NEBULIZER 3
-#define LED_ON              4
-
+#define NEBULIZER			1
+#define POMPA    			2
+#define TURN_LED            4
+#define RISCALDATORE        8
+        
 #define OUTPUT_OFF			0
 #define OUTPUT_ON			1
 
@@ -64,6 +66,9 @@
 
 #define READ_OK      0
 #define READ_ERROR   1
+
+#define HUMIDIFIER_MAX_ERROR           5
+#define DOSING_TEMPERATURE_MAX_ERROR   5
 // -----------------------------------------------------------------------------
 
 # define NEBULIZER_OFF()	\
@@ -84,6 +89,16 @@ do {                        \
 # define AIR_PUMP_ON()      \
 do {                        \
 	PUMP = ON;              \
+} while (0)
+
+# define RISCALDATORE_OFF() \
+do {                        \
+	RISCALD = OFF;          \
+} while (0)
+
+# define RISCALDATORE_ON()  \
+do {                        \
+	RISCALD = ON;           \
 } while (0)
 
 # define isColorCmdStop()  		  (HumidifierAct.command.stop)

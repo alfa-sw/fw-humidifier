@@ -58,6 +58,9 @@
    /* 12 */T_SHT31_WRITE_TIMEOUT,
    /* 13 */T_SHT31_HEATER,
    /* 14 */T_LED_DURATION_ON,
+   /* 15 */T_SPI_MEASUREMENT, 
+   /* 16 */T_SPI_HARD_RESET,   
+   /* 17 */T_ERROR_STATUS,              
    N_TIMERS
  };
 
@@ -85,8 +88,14 @@
  /* 13*/# define DELAY_WAIT_HEATER 5000
 // LED Duration ON 10"
 /* 14 */# define DELAY_LED 3000
-/* 15 */	
-
+// Timeout on SPI TC72 Write Command: 200 msec
+/* 15 */# define DELAY_SPI_MEASUREMENT 100	
+// Waiting Temperature Sensor Reset Time: 2 msec
+/* 16 */# define DELAY_SPI_HARD_RESET 1	
+// Waiting Time in Error Status: 100 msec
+/* 17 */ # define DELAY_ERROR_STATUS 50	
+/* 17 */ //# define DELAY_ERROR_STATUS 5000	
+ 
 typedef struct {
   signed char Flg;
   unsigned short InitBase;

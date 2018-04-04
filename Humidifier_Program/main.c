@@ -91,6 +91,7 @@
 #include "define.h"
 #include "i2c1.h"
 #include "gestIO.h"
+#include "spi.h"
 
 volatile const unsigned short *PtrTestResults = (unsigned short *) (__BL_TEST_RESULTS_ADDR);
 
@@ -153,6 +154,7 @@ void Pippo(void)
 }
 
 
+
 int main(void)
 {
     uint8_t stato_led;
@@ -210,6 +212,7 @@ int main(void)
 	initParam();
 	initSerialCom();
     I2C1_Initialize();
+    SPI1_Initialize();
     
 #if defined NO_BOOTLOADER
   // if NON HARDCODED address is defined and BootLoader is NOT present, 
@@ -240,7 +243,8 @@ int main(void)
 #else
 #endif	
 
-    StartTimer(T_LED_DURATION_ON);
+//    StartTimer(T_LED_DURATION_ON);
+    StartTimer(T_ERROR_STATUS);
     while (1)
 	{
 #ifndef DEBUG_SLAVE
@@ -254,27 +258,37 @@ int main(void)
 		gestioneIO();
 		serialCommManager();
         I2C_Manager();
+        SPI_Manager();
         // LED management
         // ---------------------------------------------------------------------
         if (isColorCmdSetupOutput() )
         {
-            if (PeripheralAct.Peripheral_Types.bytePeripheral == LED_ON) 
+            if (PeripheralAct.Peripheral_Types.humidifier_20_led == ON) 
             {
+                Status.level = HUMIDIFIER_PAR_RX;
+                StopHumidifier();
+                NextStatus.level = HUMIDIFIER_NEBULIZER_PUMP_LED_RISCALDATORE_ON_ST;
+                    
                 if (AnalyzeSetupOutputs() == FALSE)
                     HumidifierAct.command.cmd = CMD_IDLE;
                 else
                 {        
-                    if (PeripheralAct.Action == OUTPUT_ON)
+                    if (PeripheralAct.Action == OUTPUT_ON) 
+                    {
                         LED = ON;
+                        HumidifierAct.Led_state = ON;
+                    }     
                     else 
+                    {
                         LED = OFF;
-			
+                        HumidifierAct.Led_state = OFF;
+                    } 
                     HumidifierAct.command.cmd = CMD_IDLE;
                 }
             }	            
         }        
         // LED ON - OFF
-        if (StatusTimer(T_LED_DURATION_ON) == T_ELAPSED)
+       if (StatusTimer(T_LED_DURATION_ON) == T_ELAPSED)
         {
             StopTimer(T_LED_DURATION_ON);
             StartTimer(T_LED_DURATION_ON);
@@ -282,12 +296,14 @@ int main(void)
             {
                 stato_led = ON;
                 LED = ON;
+                HumidifierAct.Led_state = ON;                
 //                AIR_PUMP_ON();
             }
             else
             {
                 stato_led = OFF;
                 LED = OFF;
+                HumidifierAct.Led_state = OFF;                
 //                AIR_PUMP_OFF();
             }                
         }

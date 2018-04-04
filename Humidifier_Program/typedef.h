@@ -46,10 +46,11 @@ typedef struct
 	unsigned char bytePeripheral;
 	
 	struct {
-      unsigned char humnidifier_20_nebulizer	: 1;
+      unsigned char humidifier_20_nebulizer     : 1;
       unsigned char humidifier_20_pump			: 1;
       unsigned char humidifier_20_led			: 1;
-      unsigned char unused    					: 5;
+      unsigned char humidifier_20_riscaldatore	: 1;
+      unsigned char unused    					: 4;
 	};	  
   } Peripheral_Types;
 } PeripheralAct_t;
@@ -126,6 +127,8 @@ typedef struct
   unsigned long Dosing_Temperature;
   unsigned char Nebulizer_state;
   unsigned char Pump_state;  
+  unsigned char Led_state;  
+  unsigned char Riscaldatore_state;    
 } HumidifierAct_t;
 
 /*===== PROTEZIONE PER UNICA INCLUSIONE (FINE FILE) =========================*/

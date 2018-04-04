@@ -137,12 +137,14 @@ RAM_EXTERN unsigned int reset_procedure;
 RAM_EXTERN unsigned int Status_I2C;
 RAM_EXTERN unsigned char Start_New_Measurement;
 RAM_EXTERN unsigned char Sensor_Measurement_Error;
+RAM_EXTERN unsigned char Start_New_Temp_Measurement;
+RAM_EXTERN unsigned char Sensor_Temp_Measurement_Error;
 
 RAM_EXTERN unsigned long SHT31_Temperature;
 RAM_EXTERN unsigned long SHT31_Humidity;
+RAM_EXTERN unsigned long TC72_Temperature;
 
 RAM_EXTERN uint16_t SHT31_DeviceAddress;
 
 RAM_EXTERN unsigned long Process_Period;
 RAM_EXTERN unsigned long pippo, pippo1;
-

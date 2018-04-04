@@ -120,7 +120,13 @@ void initIO(void)
 	TRISAbits.TRISA1 = INPUT; // AN1
 	TRISAbits.TRISA2 = INPUT; // OSC0
 	TRISAbits.TRISA3 = INPUT; // OSC1
-	TRISAbits.TRISA8 = OUTPUT;// LED	
+	TRISAbits.TRISA8 = OUTPUT;// LED
+
+    // Set PPS - SPI1
+    RPOR5bits.RP10R   = 0x0009; //RB10->SPI1:SS1OUT;
+    RPOR5bits.RP11R   = 0x0008; //RB11->SPI1:SCK1OUT;
+    RPINR20bits.SDI1R = 0x000D; //RB13->SPI1:SDI1;
+    RPOR6bits.RP12R   = 0x0007; //RB12->SPI1:SDO1;	
 }
 
 void INTERRUPT_Initialize (void)

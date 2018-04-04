@@ -41,7 +41,9 @@ unsigned short Durata[N_TIMERS] = {
    /* 12 */DELAY_SHT31_TIMEOUT,
    /* 13 */DELAY_WAIT_HEATER,
    /* 14 */DELAY_LED,  
-   /* 15 */           
+   /* 15 */DELAY_SPI_MEASUREMENT, 
+   /* 16 */DELAY_SPI_HARD_RESET,	
+   /* 17 */DELAY_ERROR_STATUS	        
 };
 
 void InitTMR(void)
