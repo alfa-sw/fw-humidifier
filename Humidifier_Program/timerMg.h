@@ -103,7 +103,7 @@ typedef struct {
 
 extern unsigned short TimeBase;
 extern timerstype TimStr[N_TIMERS];
-extern unsigned short Durata[N_TIMERS];
+extern unsigned long Durata[N_TIMERS];
 extern void TimerMg (void);
 extern unsigned short ReadTimer(unsigned char timer);
 extern void StartTimer(unsigned char Timer);

@@ -147,8 +147,8 @@ int AnalyzeParam(void)
 	{
 		// 1sec = 500
 		Durata[T_HUM_CAP_OPEN_ON] = HumidifierAct.AutocapOpen_Duration * 500;	
-		// Initial Duration = Period / 10
-        Durata[T_HUM_CAP_CLOSED_ON] = (HumidifierAct.Humidifier_Period / 10) * 500;	
+		// Initial Duration = 2 sec
+        Durata[T_HUM_CAP_CLOSED_ON] = HUMIDIFIER_DURATION * 500;	
         Process_Period = (HumidifierAct.Humidifier_Period);
 		return TRUE;
 	}		
@@ -366,16 +366,25 @@ void humidifierStatusManager(void)
 									StartTimer(T_HUM_CAP_CLOSED_ON);
 									StartTimer(T_HUM_CAP_CLOSED_PERIOD);
 									count_humidifier_period_closed = 0;
+									// Only NEBULIZER is ON at the beginning
 									HumidifierAct.Nebulizer_state = ON;
 									NEBULIZER_ON();
-									HumidifierAct.Pump_state = ON;
-									AIR_PUMP_ON();
-									Status.step = STEP_2;
+									HumidifierAct.Pump_state = OFF;
+									AIR_PUMP_OFF();
+									Status.step = STEP_2;                                    
 								}
 								else if (Status.step == STEP_2)
 								{
-									// Check Duration
-									if (StatusTimer(T_HUM_CAP_CLOSED_ON) == T_ELAPSED)
+									// Check Duration: only NEBULIZER is ON
+									if ( (StatusTimer(T_HUM_CAP_CLOSED_ON) == T_ELAPSED) && (HumidifierAct.Pump_state == OFF) )
+									{
+										StopTimer(T_HUM_CAP_CLOSED_ON);
+                                        StartTimer(T_HUM_CAP_CLOSED_ON);
+										HumidifierAct.Pump_state = ON;
+										AIR_PUMP_ON();	
+									}
+									// Check Duration: both NEBULIZER and PUMP are ON
+                                    else if ( (StatusTimer(T_HUM_CAP_CLOSED_ON) == T_ELAPSED) && (HumidifierAct.Pump_state == ON) ) 
 									{
 										StopTimer(T_HUM_CAP_CLOSED_ON);
 										HumidifierAct.Nebulizer_state = OFF;
@@ -383,14 +392,15 @@ void humidifierStatusManager(void)
 										HumidifierAct.Pump_state = OFF;
 										AIR_PUMP_OFF();	
 									}
+                                        
 									// Check Period
 									if (StatusTimer(T_HUM_CAP_CLOSED_PERIOD) == T_ELAPSED) 
 									{
 										count_humidifier_period_closed++;
-										StopTimer(T_HUM_CAP_CLOSED_PERIOD);				
+                                        StopTimer(T_HUM_CAP_CLOSED_PERIOD);				
 										StartTimer(T_HUM_CAP_CLOSED_PERIOD);	
-                                        pippo = count_humidifier_period_closed;
-                                        pippo1 = Process_Period;
+pippo = count_humidifier_period_closed;
+pippo1 = Process_Period;
 										if (count_humidifier_period_closed >= Process_Period) 
 										{
 											count_humidifier_period_closed = 0;
@@ -400,17 +410,17 @@ void humidifierStatusManager(void)
 												HumidifierAct.RH = RH;
 												HumidifierProcessCalculation(HumidifierAct.Humidifier_Multiplier,HumidifierAct.RH, HumidifierAct.Temperature, 
 													&Process_Period, &Process_Pump_Duration, &Process_Neb_Duration);
-
-                                                Process_Period = 5;
-                                                pippo = Process_Pump_Duration;
-                                                pippo1 = Process_Period;
+//Process_Period = 5;
+pippo = Process_Pump_Duration;
+pippo1 = Process_Period;
                                                 // 1sec = 500
-												Durata[T_HUM_CAP_CLOSED_ON] = Process_Pump_Duration * 500;	
+												Durata[T_HUM_CAP_CLOSED_ON] = Process_Pump_Duration;	
+        										StopTimer(T_HUM_CAP_CLOSED_ON);
 												StartTimer(T_HUM_CAP_CLOSED_ON);
-												HumidifierAct.Nebulizer_state = ON;
+												// Only NEBULIZER is ON at the beginning
+                                                HumidifierAct.Nebulizer_state = ON;
 												NEBULIZER_ON();
-												HumidifierAct.Pump_state = ON;
-												AIR_PUMP_ON();
+        										HumidifierAct.Pump_state = OFF;                                                
 											}
 											else
 											{	
@@ -903,7 +913,6 @@ int AcquireTemperature(unsigned char Temp_Type, unsigned long *Temp)
         break;
 		// Sensore Temperatura Microchip TC72
 		case TEMPERATURE_TYPE_1:            
-/*
 			if (Start_New_Temp_Measurement == OFF) 
                 Start_New_Temp_Measurement = ON;
             if (Sensor_Temp_Measurement_Error == FALSE)
@@ -913,8 +922,7 @@ int AcquireTemperature(unsigned char Temp_Type, unsigned long *Temp)
             }
             else
     			return FALSE;
-*/
-    		return TRUE;
+//    		return TRUE;
             
         break;
 		
@@ -981,12 +989,17 @@ int AcquireHumidityTemperature(unsigned char Temp_Type, unsigned long *Temp, uns
 void HumidifierProcessCalculation(unsigned long Multiplier, unsigned long RH, unsigned long Temperature, 
 														unsigned long *Period, unsigned long *Pump_Duration, unsigned long *Neb_Duration)
 {
-	float KT1, KH1, KT2, KH2, KBoostT, KBoostH, KBoostTH, KRT, KRH, Temp, RH_Humidity, KS;
+	float KT1, KH1, KT2, KH2, KBoostT, KBoostH, KBoostTH, KRT, KRH, Temp, RH_Humidity, KS, Knormalizz, Period_calc;
 	
 	Temp = (float)Temperature/10;
 	RH_Humidity = (float)RH/1000;
+//	Temp = (float)20;
+//	RH_Humidity = (float)0.5;
+
 	KS = (float)Multiplier/100;
-	
+	// Normalization factor betwee old system and NEW one x conversion factor between sec to 2msec unit (= 0.007692 * 500)
+    Knormalizz = 3.846;
+    
 	// KT1 = variabile di temperatura per definizione del "Period"
 	// Calcolo KT1
 	if (Temp < 10)
@@ -996,7 +1009,7 @@ void HumidifierProcessCalculation(unsigned long Multiplier, unsigned long RH, un
 	else
 		KT1 = 0.5 + (20 - Temp) * 0.025;
 
-	// KH1 = variabile di umiditÃ  per definizione del "Period"
+	// KH1 = variabile di umidita'  per definizione del "Period"
 	// Calcolo KH1
 	if (RH_Humidity < 0.4)
 		KH1 = 0.25;
@@ -1008,7 +1021,8 @@ void HumidifierProcessCalculation(unsigned long Multiplier, unsigned long RH, un
 	// "Period = tempo all'interno del quale si calcola il tempo di funzionamento della pompa
 	// e del Nebulizzatore dell'acuqa della bottiglia
 	// Calcolo "Period"
-	*Period = 30 * (KT1 + KH1);
+	*Period = 1200 * (KT1 + KH1);
+    Period_calc = 1200.0 * (KT1 + KH1);
 
 	// KT2 = variabile di temperatura per definizione di "Pump_Duration"
 	// Calcolo KT2
@@ -1067,11 +1081,11 @@ void HumidifierProcessCalculation(unsigned long Multiplier, unsigned long RH, un
 	else
 		KRH = (0.5 - RH_Humidity) * 1.5;
 
-	// "Pump_Duration" = tempo durante il quale la pompa rimane accesa
+	// "Pump_Duration" = tempo durante il quale la Pompa rimane accesa (unità di misura 2msec))
 	// Calcolo "Pump_Duration"
-	*Pump_Duration = *Period * KT2 * KH2 * KBoostTH * KS;
-	if (*Pump_Duration > *Period)
-		*Pump_Duration = *Period;
+	*Pump_Duration = Period_calc * KT2 * KH2 * KBoostTH * Knormalizz * KS;
+	if ((*Pump_Duration / 500) > *Period)
+		*Pump_Duration = *Period * 500;
 
 	// "Neb_Duration" = tempo durante il quale il Nebulizzatore dell'acqua della bottiglia rimane acceso
 	// Calcolo "Neb_Duration"

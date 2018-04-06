@@ -760,6 +760,7 @@ void I2C_Manager (void)
                     }
                 }
 
+                
                 if (crc != SHT31_Checksum_Temperature) 
                 {    
                     Sensor_Measurement_Error = TRUE;

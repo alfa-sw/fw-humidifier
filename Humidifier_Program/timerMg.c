@@ -26,7 +26,7 @@ unsigned short TimeBase;
 
 timerstype TimStr[N_TIMERS];
 
-unsigned short Durata[N_TIMERS] = {
+unsigned long Durata[N_TIMERS] = {
    /* 1 */ DELAY_READ_IO,
    /* 2 */ DELAY_INTRA_FRAMES,
    /* 3 */ DELAY_WAIT_SLAVE,	

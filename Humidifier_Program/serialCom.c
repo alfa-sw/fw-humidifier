@@ -509,7 +509,6 @@ void DecodeHumidifierMessage(uartBuffer_t *rxBuffer, unsigned char slave_id)
   case CONTROLLO_PRESENZA:
     HumidifierAct.Autocap_Status = rxBuffer->buffer[idx ++];
 HumidifierAct.Autocap_Status = AUTOCAP_CLOSED;
-//HumidifierAct.Autocap_Status = AUTOCAP_OPEN;
     break;
 
   case SETUP_PARAMETRI_UMIDIFICATORE:  
