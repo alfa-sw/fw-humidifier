@@ -94,7 +94,7 @@
 #include "spi.h"
 
 volatile const unsigned short *PtrTestResults = (unsigned short *) (__BL_TEST_RESULTS_ADDR);
-
+volatile const unsigned long *BootPtrTestResults = (unsigned long *) (__BL_SW_VERSION);
 // -----------------------------------------------------------------------------
 //                      APPLICATION PROGRAM Service Routine
 void APPLICATION_T1_InterruptHandler(void);

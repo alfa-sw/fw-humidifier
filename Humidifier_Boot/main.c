@@ -25,6 +25,7 @@
 
 // FBSLIM
 #pragma config BSLIM = 0x1FFF           // Boot Segment Flash Page Address Limit bits (Boot Segment Flash page address  limit)
+//#pragma config BSLIM = 0x1000           // Boot Segment Flash Page Address Limit bits (Boot Segment Flash page address  limit)
 
 // FSIGN
 
@@ -118,9 +119,6 @@ const BootloaderPointers_T __attribute__ ((space(prog), address (0x200))) Bootlo
   BL_CRCarea,
   BL_CRCareaFlash
 };
-
-const unsigned long __attribute__ ((space(psv), address (__BL_SW_VERSION)))
-dummy0 = BL_SW_VERSION; /* 0x0170 */
 
 const unsigned short __attribute__ ((space(psv), address (__BL_CODE_CRC)))
 dummy1 = 0; /* this will be changed in the .hex file by the CRC helper */
@@ -778,6 +776,8 @@ void jump_to_appl()
    * relinquishing control to the application. */
   slave_index = (unsigned short) BL_slave_id ;
 
+  boot_fw_version = (unsigned long) BL_SW_VERSION;  
+
   /* Use standard vector table */
   //INTCON2bits.AIVTEN = 0;
 
@@ -808,9 +808,36 @@ int main(void)
 #if ! defined __DEBUG	    
     ENABLE_WDT();
 #endif	
-    //EraseFlashPage(9);
-    //WriteFlashWord(0x2400, 0x000F0F0FL);
-    //ReadFlashMemory.Val = ReadProgramMemory((DWORD) (0x2400));   
+    //__builtin_disi(0x3FFF);
+    ReadFlashMemory.Val = 0;
+
+    EraseFlashPage(8);
+    EraseFlashPage(9);
+
+    PUMP = 1;
+    
+    WriteFlashWord(0x2300, 0x00010203L);
+//    WriteFlashWord(0x2302, 0x00040506L);
+//    WriteFlashWord(0x2304, 0x00070809L);
+    WriteFlashWord(0x2406, 0x000A0B0CL);
+
+    ReadFlashMemory.Val = ReadProgramMemory((DWORD) (0x2300));   
+    if (ReadFlashMemory.Val != 0x00010203)
+        PUMP = 0;
+
+//    ReadFlashMemory.Val = ReadProgramMemory((DWORD) (0x2302));   
+//    if (ReadFlashMemory.Val != 0x00040506)
+//        PUMP = 0;
+//    ReadFlashMemory.Val = ReadProgramMemory((DWORD) (0x2304));   
+//    if (ReadFlashMemory.Val != 0x00070809)
+//        PUMP = 0;
+    ReadFlashMemory.Val = ReadProgramMemory((DWORD) (0x2406));   
+    if (ReadFlashMemory.Val != 0x000A0B0CL)
+        PUMP = 0;
+    ReadFlashMemory.Val = ReadProgramMemory((DWORD) (0x2408));   
+    if (ReadFlashMemory.Val != 0x000A0B0CL)
+        PUMP = 0;
+
 	do {
 #if ! defined __DEBUG	
 		/* Reset Watchdog*/
@@ -828,6 +855,10 @@ int main(void)
     Nop();
 	Nop();
 
+    //ReadFlashMemory.Val = ReadProgramMemory((DWORD) (0x2402));   
+    //if (ReadFlashMemory.Val != 0x111111)
+    //    PUMP = 0;
+    
 	jump_to_appl(); /* goodbye */
 
   return 0; // unreachable, just get rid of compiler warning 

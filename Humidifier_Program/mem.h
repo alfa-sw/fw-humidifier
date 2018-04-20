@@ -28,14 +28,17 @@
 #define __APPL_DATA_BASE 0x1010
 /* Data dwelling in the BL memory, not altered by app init */
 #define __BL_TEST_RESULTS_ADDR (__APPL_DATA_BASE - 0x12)
+/* This location is used to store whiche program is actually active: BOOT or APPLICATION PROGRAM */
+#define __PROGRAM_ACTIVE_ADDR (__APPL_DATA_BASE - 0x14)
+#define __BL_SW_VERSION (__APPL_DATA_BASE - 0x18)
 
 #define __BOOT_GOTO_ADDR "0x0204"
 
 #define __BL_CODE_END  (0x1FFEL)
-#define __BL_SW_VERSION (__BL_CODE_END - 0x4)
 
 #define SLAVE_ADDR() (*(PtrTestResults))
-
 //extern volatile const unsigned short *PtrTestResults;
+#define BOOT_FW_VERSION() (*(BootPtrTestResults))
+extern volatile const unsigned long *BootPtrTestResults;
 
 #endif /* MEM_H_DEFINED */

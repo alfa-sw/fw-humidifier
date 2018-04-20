@@ -29,23 +29,33 @@ void WriteFlashWord(long Addr,long Val)
  *
  ******************************************************************************/
 {
-int progData1L = 0x1111;
-int progData2L = 0x2222;
-char progData1H = 0x11;
-char progData2H = 0x22;
+//int progData1L = 0x1111;
+//int progData2L = 0x3333;
+//char progData1H = 0x11;
+//char progData2H = 0x33;
 
-  DWORD_VAL Address = {Addr};
-//  DWORD_VAL Value = {Val};
+unsigned int progData1L, progData2L;
+unsigned int progData1H, progData2H;
+//unsigned char progData1H, progData2H;
+
+//DWORD_VAL Address = {Addr};
+//DWORD_VAL Value = {Val};
+
+//unsigned int offset;
+
+progData1L = (unsigned int)(Val & 0x0000FFFF);
+progData1H = (unsigned int)((Val & 0x00FF0000)>>16);
+//progData1H = (unsigned char)((Val & 0x00FF0000)>>16);
+
+progData2L = (unsigned int)(Val & 0x00000000);
+progData2H = (unsigned int)((Val & 0x00000000)>>16);
+//progData2H = (unsigned char)((Val & 0x00000000)>>16);
 
   NVMCON = 0x4001;                //Double-word program or executive memory
-  TBLPAG = 0x0F9;                 //Point TBLPAG to the write latches 
-
-  //NVMADRU = Address.word.HW;  
-  //NVMADR  = Address & 0x0000FFFF;
-  
-  NVMADR  = Address.word.LW;
-  NVMADRU = Address.word.HW;
-  
+  TBLPAG = 0xFA;                 //Point TBLPAG to the write latches 
+//  NVMADRU = Address.word.HW;  
+//  NVMADR  = Address.word.LW;
+    
   //Write the low word to the latch
 //  __builtin_tblwtl(Address.word.LW, Value.word.LW );
 
@@ -54,21 +64,21 @@ char progData2H = 0x22;
 //  __builtin_tblwth(Address.word.LW, Value.word.HW );
 
 __builtin_tblwtl(0,progData1L); // Load write latches
-__builtin_tblwth(0,progData2L);
-__builtin_tblwtl(1,progData1H);
-__builtin_tblwth(1,progData2H);  
-
+__builtin_tblwth(0,progData1H);
+__builtin_tblwtl(0x2,progData2L);
+__builtin_tblwth(0x2,progData2H);  
+  
   //Disable interrupts for next few instructions for unlock sequence
-  asm("DISI #16");
+  asm("DISI #5");
   __builtin_write_NVM();
-
+  
   while(NVMCONbits.WR == 1){}
 
   //Good practice to clear WREN bit anytime we are not expecting to
   //do erase/write operations, further reducing probability of
   //accidental activation.
   NVMCONbits.WREN = 0;
-
+  
 }/*end TimerMg*/
 
 
@@ -137,35 +147,60 @@ DWORD ReadProgramMemory(DWORD address)
 void WriteFlashSubBlock(DWORD StartAddress, unsigned short Size,
                          unsigned short * DataBuffer)
 {
+//int progData1L = 0x1111;
+//int progData2L = 0x2222;
+//char progData1H = 0x11;
+//char progData2H = 0x22;
+  int progData1L;
+  char progData1H;
+
   unsigned short DataIndex = 0;
 
   DWORD_VAL Address;
 
-  //NVMCON = 0x4003;              //Perform WORD write next time WR gets set = 1.
   NVMCON = 0x4001;                //Double-word program or executive memory
+  TBLPAG = 0xFA;                 //Point TBLPAG to the write latches 
   
   while(DataIndex < Size)                 //While data is still in the buffer.
   {
-      Address = (DWORD_VAL)(StartAddress + DataIndex);
-      TBLPAG = Address.word.HW;
+    Address = (DWORD_VAL)(StartAddress + DataIndex);
 
-//__builtin_tbloffset()
-//__builtin_tblpage()
+    NVMADRU = Address.word.HW;  
+    NVMADR  = Address.word.LW;
+  
+    progData1L = (int)(DataBuffer[DataIndex] & 0x0000FFFF);
+    progData1H = (char)(DataBuffer[DataIndex + 1]);
+    //progData1H = (char)((DataBuffer[DataIndex + 1] & 0x00FF0000)>>16);
+
+      //Write the low word to the latch
+    __builtin_tblwtl(0,progData1L); // Load write latches
+      //Write the high word to the latch (8 bits of data + 8 bits of "phantom data")
+    __builtin_tblwth(0,progData1H);
+    //__builtin_tblwtl(1,progData2L);
+    //__builtin_tblwth(1,progData2H);  
+
+    DataIndex = DataIndex + 2;
+
+    //Disable interrupts for next few instructions for unlock sequence
+    asm("DISI #16");
+    __builtin_write_NVM();
+
+    while(NVMCONbits.WR == 1){}
       
       //Write the low word to the latch
-      __builtin_tblwtl(Address.word.LW, DataBuffer[DataIndex]);
+//      __builtin_tblwtl(Address.word.LW, DataBuffer[DataIndex]);
 
       //Write the high word to the latch (8 bits of data + 8 bits of
       //"phantom data")
-      __builtin_tblwth(Address.word.LW, DataBuffer[DataIndex + 1]);
-      DataIndex = DataIndex + 2;
+//      __builtin_tblwth(Address.word.LW, DataBuffer[DataIndex + 1]);
+//      DataIndex = DataIndex + 2;
 
       //Disable interrupts for next few instructions for unlock
       //sequence
-      asm("DISI #16");
-      __builtin_write_NVM();
+//      asm("DISI #16");
+//      __builtin_write_NVM();
 
-      while(NVMCONbits.WR == 1){}
+//      while(NVMCONbits.WR == 1){}
 
   }
 
@@ -195,8 +230,8 @@ void EraseFlashPage(unsigned char PageToErase)
   NVMCON  = 0x4003;  //Erase page on next WR
   
   //Disable interrupts for next few instructions for unlock sequence
-//  asm("DISI #16");
-  asm("DISI #5");
+  asm("DISI #16");
+  //asm("DISI #5");
   __builtin_write_NVM();
 
   while(NVMCONbits.WR == 1)

@@ -11,7 +11,7 @@
 #ifndef __MACRO_H__
 #define __MACRO_H__
 
-#define BL_SW_VERSION 0x10700
+#define BL_SW_VERSION 0x010701
 
 // #define WORD_SIZE                            0x02
 

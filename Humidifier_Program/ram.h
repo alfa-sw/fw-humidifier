@@ -147,4 +147,9 @@ RAM_EXTERN unsigned long TC72_Temperature;
 RAM_EXTERN uint16_t SHT31_DeviceAddress;
 
 RAM_EXTERN unsigned long Process_Period;
+
+RAM_EXTERN unsigned char Humidifier_Enable;
+
 RAM_EXTERN unsigned long pippo, pippo1;
+
+RAM_EXTERN unsigned short Start_Jump_Boot;

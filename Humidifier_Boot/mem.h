@@ -16,7 +16,6 @@
 #define __APPL_CODE_BASE (0x2000L)
 #define __APPL_GOTO_ADDR "0x2004"
 
-#define __BL_SW_VERSION (__BL_CODE_END - 0x4)
 #define __BL_CODE_CRC   (__BL_CODE_END)
 
 /* -- Data memory macros ----------------------------------------------------- */
@@ -25,9 +24,10 @@
 
 #define __APPL_DATA_END  (0x4800)
 
-/* This location is used to forward the 485 index to the application. */
+/* This location is used to forward 485 index to the application. */
 #define __SLAVE_INDEX_ADDR (__APPL_DATA_BASE - 0x2)
-
+/* This location is used to forward 485 BootLoader FW Version */
+#define __BL_SW_VERSION (__APPL_DATA_BASE - 0x8)
 /* This location is used to store whiche program is actually active: BOOT or APPLICATION PROGRAM */
 #define __PROGRAM_ACTIVE_ADDR (__APPL_DATA_BASE - 0x4)
 

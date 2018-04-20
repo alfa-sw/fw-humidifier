@@ -33,6 +33,9 @@ RAM_EXTERN volatile short slave_index __attribute__((space(data),
 /* Reserved 2 bytes for set which program is active: BOOT or APPLICATION PROGRAM */
 RAM_EXTERN volatile short program_active __attribute__((space(data),
                                                      address(__PROGRAM_ACTIVE_ADDR)));
+													 
+RAM_EXTERN volatile long boot_fw_version __attribute__((space(data),
+                                                     address(__BL_SW_VERSION)));													 
 
 #ifdef HARDCODED_ADDRESS
 /*B1_BASE*/#ifdef B1_BASE

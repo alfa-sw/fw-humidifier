@@ -23,7 +23,7 @@ enum {
 	/* 17 */  HUMIDIFIER_NEBULIZER_PUMP_LED_RISCALDATORE_ON_ST,
 
 	/* 18 */  HUMIDIFIER_PAR_RX,
-	/* 19 */   	
+	/* 19 */  HUMIDIFIER_JUMP_TO_BOOT_ST, 	
   /** Errors */
     /* 20 */  HUMIDIFIER_BAD_PAR_ERROR = 20,
     /* 21 */  HUMIDIFIER_TOO_LOW_WATER_LEVEL,
@@ -44,7 +44,8 @@ enum {
 enum {
     CONTROLLO_PRESENZA = 0x01,
     SETUP_PARAMETRI_UMIDIFICATORE = 0x13,
-    IMPOSTA_USCITE_UMIDIFICATORE  = 0x14
+    IMPOSTA_USCITE_UMIDIFICATORE  = 0x14,
+    JUMP_TO_BOOT = 0x15
   };
 
 enum {
@@ -70,4 +71,5 @@ extern int AcquireTemperature(unsigned char Temp_Type, unsigned long *Temp);
 extern int AcquireHumidityTemperature(unsigned char Hum_Type, unsigned long *Temp, unsigned long *Humidity);
 extern void HumidifierProcessCalculation(unsigned long Multiplier, unsigned long RH, unsigned long Temperature, 
 														unsigned long *Period, unsigned long *Pump_Duration, unsigned long *Neb_Duration);
+extern void jump_to_boot(void);
 #endif

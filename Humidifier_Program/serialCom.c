@@ -456,6 +456,18 @@ void MakeHumidifierMessage(uartBuffer_t *txBuffer, unsigned char slave_id)
   // Riscaldatore State
   stuff_byte(txBuffer->buffer, &idx, LSB_LSW(HumidifierAct.Riscaldatore_state));
 
+  #if defined NO_BOOTLOADER
+  /* BootLoader Firmware Version (24 bits) */
+  stuff_byte( txBuffer->buffer, &idx, 0xFF);
+  stuff_byte( txBuffer->buffer, &idx, 0xFF);
+  stuff_byte( txBuffer->buffer, &idx, 0xFF);
+#else
+  /* BootLoader Firmware Version (24 bits) */
+  stuff_byte( txBuffer->buffer, &idx, LSB_LSW(BOOT_FW_VERSION()));
+  stuff_byte( txBuffer->buffer, &idx, MSB_LSW(BOOT_FW_VERSION()));
+  stuff_byte( txBuffer->buffer, &idx, LSB_MSW(BOOT_FW_VERSION()));
+#endif
+
   /* crc, pktlen taken care of here */
   unionWord_t crc;													  
 																
@@ -506,6 +518,11 @@ void DecodeHumidifierMessage(uartBuffer_t *rxBuffer, unsigned char slave_id)
 
   switch (HumidifierAct.typeMessage)
   {
+  case JUMP_TO_BOOT:
+	Status.level = HUMIDIFIER_JUMP_TO_BOOT_ST;
+	Start_Jump_Boot = 0;
+	break;
+      
   case CONTROLLO_PRESENZA:
     HumidifierAct.Autocap_Status = rxBuffer->buffer[idx ++];
 HumidifierAct.Autocap_Status = AUTOCAP_CLOSED;
@@ -687,10 +704,13 @@ void U1TX_InterruptHandler(void)
     {
       // Disable Tx multiprocessor line
       _UART_DE = 0;
-      // Diabilito Interrupt in Trasmissione
+      // Disable Transmission Interrupt
       IEC0bits.U1TXIE = 0;
       txBuffer.bufferFlags.uartBusy = FALSE;
       txBuffer.bufferFlags.txReady = FALSE;
+      // End Trasmissione: se era arrivato comando di JUMP_TO_BOOT ne abilito la partenza
+	  if (Status.level == HUMIDIFIER_JUMP_TO_BOOT_ST)
+		 Start_Jump_Boot = 1; 
     }
     else
     {

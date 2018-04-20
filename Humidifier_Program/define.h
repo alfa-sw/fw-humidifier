@@ -25,6 +25,7 @@
 #define HUMIDIFIER_ENABLE	1
 
 #define HUMIDIFIER_TYPE_0	0 // SENSIRION SHT31
+#define HUMIDIFIER_TYPE_1	1 // NO SENSOR - Process Humidifier 1.0
 
 #define HUMIDIFIER_PERIOD   1200 // 20 min
 #define HUMIDIFIER_DURATION 2    // 2 sec
@@ -70,6 +71,9 @@
 
 #define HUMIDIFIER_MAX_ERROR           5
 #define DOSING_TEMPERATURE_MAX_ERROR   5
+
+#define HUMIDIFIER_MAX_ERROR_DISABLE          20
+#define DOSING_TEMPERATURE_MAX_ERROR_DISABLE  20
 // -----------------------------------------------------------------------------
 
 # define NEBULIZER_OFF()	\
@@ -95,11 +99,13 @@ do {                        \
 # define RISCALDATORE_OFF() \
 do {                        \
 	RISCALD = OFF;          \
+    RISCALD_FAN = OFF;       \
 } while (0)
 
 # define RISCALDATORE_ON()  \
 do {                        \
 	RISCALD = ON;           \
+    RISCALD_FAN = ON;       \
 } while (0)
 
 # define isColorCmdStop()  		  (HumidifierAct.command.stop)

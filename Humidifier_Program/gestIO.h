@@ -10,7 +10,6 @@
 #define TMP_ALERT PORTBbits.RB2 // Input SEMSOR ALERT
 #define PUMP      PORTBbits.RB3 // Output PUMP
 #define NEB       PORTBbits.RB4 // Output NEBULIZER
-#define RISCALD   PORTBbits.RB5 // Output RISCALDATORE
 #define LEVEL     PORTBbits.RB7 // Input LEVEL
 #define I2C0_SDL  PORTBbits.RB8 // Ouput I2C
 #define I2C0_SDA  PORTBbits.RB9 // Input I2C
@@ -27,6 +26,9 @@
 #define SW4	PORTCbits.RC3  // Input Dip Switch 4
 #define SW5	PORTCbits.RC4  // Input Dip Switch 5
 #define SW6 PORTCbits.RC5  // Input Dip Switch 6
+
+#define RISCALD	PORTCbits.RC8  // Output HEATING 
+#define RISCALD_FAN PORTCbits.RC9  // Output FAN
 
 #define AN0  PORTAbits.RA0 // Input Analog 0
 #define AN1	 PORTAbits.RA1 // Input Analog 1

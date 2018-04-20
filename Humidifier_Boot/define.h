@@ -33,7 +33,7 @@
 //#if LAST_PG_APPL != EXPECTED_LAST_PAGE_APPL
 //#  warning Last application page does not not match expected value. Check define.h
 //#endif
-#define LAST_PG_APPL  (43)
+#define LAST_PG_APPL  (41)
 
 /******************************************************************************************/
 /***************************************** Main *******************************************/
