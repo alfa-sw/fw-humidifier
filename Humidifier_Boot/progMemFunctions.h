@@ -10,8 +10,7 @@
 #ifndef __PROG_MEM_FUNCTIONS_H__
 #define __PROG_MEM_FUNCTIONS_H__
 
-extern void WriteFlashWord(long Addr,long Val);
-
+extern void WriteFlashDoubleWord(long Addr,long Val);
 extern DWORD ReadProgramMemory(DWORD address);
 
 extern void WriteFlashSubBlock(DWORD StartAddress, unsigned short Size,

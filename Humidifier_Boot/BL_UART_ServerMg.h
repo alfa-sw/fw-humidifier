@@ -72,6 +72,8 @@ enum
 #define isUART_Firmware_Request_Cmd() (progBoot.typeMessage == CMD_FRMWR_REQUEST  && isNewProcessingMsg())
 
 #define setPackError(x)   (progBoot.errorType = x)
+
+#define FCY 4000000ul
 /*===== TIPI LOCALI ==========================================================*/
 /*===== DICHIARAZIONI LOCALI =================================================*/
 /*===== VARIABILI LOCALI =====================================================*/

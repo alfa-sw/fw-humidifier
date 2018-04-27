@@ -19,7 +19,7 @@
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
                    projectFiles="true">
-      <itemPath>p24FJ64GA704_BOOT.gld</itemPath>
+      <itemPath>p24FJ64GA704_NO BOOT.gld</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -116,7 +116,7 @@
         <property key="optimization-level" value="0"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros" value="DEBUG_SLAVE;NO_BOOTLOADER"/>
+        <property key="preprocessor-macros" value="NO_BOOTLOADER;DEBUG_SLAVE"/>
         <property key="scalar-model" value="default"/>
         <property key="use-cci" value="false"/>
         <property key="use-iar" value="false"/>

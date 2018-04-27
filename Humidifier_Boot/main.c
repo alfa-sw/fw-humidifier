@@ -14,8 +14,8 @@
 // FSEC
 #pragma config BWRP = OFF               // Boot Segment Write-Protect bit (Boot Segment may be written)
 #pragma config BSS = DISABLED           // Boot Segment Code-Protect Level bits (No Protection (other than BWRP))
-#pragma config BSEN = OFF               // Boot Segment Control bit (No Boot Segment)
-//#pragma config BSEN = ON    // Boot Segment Control bit->Boot Segment size determined by FBSLIM
+//#pragma config BSEN = OFF               // Boot Segment Control bit (No Boot Segment)
+#pragma config BSEN = ON    // Boot Segment Control bit->Boot Segment size determined by FBSLIM
 #pragma config GWRP = OFF               // General Segment Write-Protect bit (General Segment may be written)
 #pragma config GSS = DISABLED           // General Segment Code-Protect Level bits (No Protection (other than GWRP))
 #pragma config CWRP = OFF               // Configuration Segment Write-Protect bit (Configuration Segment may be written)
@@ -25,7 +25,7 @@
 
 // FBSLIM
 #pragma config BSLIM = 0x1FFF           // Boot Segment Flash Page Address Limit bits (Boot Segment Flash page address  limit)
-//#pragma config BSLIM = 0x1000           // Boot Segment Flash Page Address Limit bits (Boot Segment Flash page address  limit)
+//#pragma config BSLIM = 0x1FFD           // Boot Segment Flash Page Address Limit bits (Boot Segment Flash page address  limit)
 
 // FSIGN
 
@@ -77,7 +77,7 @@
 
 // #pragma config statements should precede project file includes.
 // Use project enums instead of #define for ON and OFF.
-
+#define FCY 4000000ul
 /*============================================================================*/
 #include "GenericTypeDefs.h"
 #include "Compiler.h"
@@ -99,6 +99,7 @@
 #include "mem.h"
 #include "progMemFunctions.h"
 #include "ram.h"
+#include <libpic30.h>
 
 /* Macro per la definizione degli Array dei filtri */
 #define FILTER_WINDOW           3
@@ -383,7 +384,7 @@ unsigned short BL_CRCareaFlash(unsigned long address, unsigned long n_word,unsig
 static void BL_Init(void)
 { 
   /* Use Alternate Vector Table */
-  //INTCON2bits.AIVTEN = 1;
+  INTCON2bits.AIVTEN = 0;
     
   // Enable nested interrupts
   INTCON1bits.NSTDIS = 0;
@@ -525,8 +526,8 @@ static void BL_IORemapping(void)
 //static char CheckApplicationPresence(DWORD address)
 char CheckApplicationPresence(DWORD address)
 {
-//  if (ReadProgramMemory(address) == APPL_FLASH_MEMORY_ERASED_VALUE)
-//    return BL_STAND_ALONE;
+  if (ReadProgramMemory(address) == APPL_FLASH_MEMORY_ERASED_VALUE)
+    return BL_STAND_ALONE;
 
   return BL_NO_STAND_ALONE;
 } /* end CheckApplicationPresence() */
@@ -792,52 +793,18 @@ int main(void)
 {
 	// Hardware initialization 
 	hw_init();
-
 	// BootLoader app initialization 
 	BL_Init();
-
 	BL_inputManager();
-    
 	// Lettura dei Dip Switch
 	BL_slave_id = 0x00FF & BL_DigInStatus.byte;
 	//BL_slave_id = 43;
-    
     // Active Program: BOOT
     program_active = BOOT;
 
 #if ! defined __DEBUG	    
     ENABLE_WDT();
 #endif	
-    //__builtin_disi(0x3FFF);
-    ReadFlashMemory.Val = 0;
-
-    EraseFlashPage(8);
-    EraseFlashPage(9);
-
-    PUMP = 1;
-    
-    WriteFlashWord(0x2300, 0x00010203L);
-//    WriteFlashWord(0x2302, 0x00040506L);
-//    WriteFlashWord(0x2304, 0x00070809L);
-    WriteFlashWord(0x2406, 0x000A0B0CL);
-
-    ReadFlashMemory.Val = ReadProgramMemory((DWORD) (0x2300));   
-    if (ReadFlashMemory.Val != 0x00010203)
-        PUMP = 0;
-
-//    ReadFlashMemory.Val = ReadProgramMemory((DWORD) (0x2302));   
-//    if (ReadFlashMemory.Val != 0x00040506)
-//        PUMP = 0;
-//    ReadFlashMemory.Val = ReadProgramMemory((DWORD) (0x2304));   
-//    if (ReadFlashMemory.Val != 0x00070809)
-//        PUMP = 0;
-    ReadFlashMemory.Val = ReadProgramMemory((DWORD) (0x2406));   
-    if (ReadFlashMemory.Val != 0x000A0B0CL)
-        PUMP = 0;
-    ReadFlashMemory.Val = ReadProgramMemory((DWORD) (0x2408));   
-    if (ReadFlashMemory.Val != 0x000A0B0CL)
-        PUMP = 0;
-
 	do {
 #if ! defined __DEBUG	
 		/* Reset Watchdog*/
@@ -855,10 +822,6 @@ int main(void)
     Nop();
 	Nop();
 
-    //ReadFlashMemory.Val = ReadProgramMemory((DWORD) (0x2402));   
-    //if (ReadFlashMemory.Val != 0x111111)
-    //    PUMP = 0;
-    
 	jump_to_appl(); /* goodbye */
 
   return 0; // unreachable, just get rid of compiler warning 
@@ -866,6 +829,14 @@ int main(void)
 
 // -----------------------------------------------------------------------------
 // INTERRUPT Service Routine
+// Default Interrupt
+void __attribute__((__interrupt__,auto_psv)) _DefaultInterrupt(void)
+//void _DefaultInterrupt(void)
+{
+    Nop();
+    Nop();
+    while(1);
+}
 // TIMER 1
 void __attribute__((__interrupt__,auto_psv)) _T1Interrupt(void)
 {

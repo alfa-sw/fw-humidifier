@@ -18,6 +18,7 @@
 #include "progMemFunctions.h"
 #include "TimerMg.h"
 #include "BL_UART_ServerMg.h"
+#include <libpic30.h>
 
 progBoot_t progBoot;
 DWORD_VAL FlashMemoryValue;
@@ -189,6 +190,15 @@ static void FW_Upload_Proc(void)
 
   case ERASE_DEVICE:
     /* Erase operation will take a while... */
+
+    __delay_ms(1000); //Delay neccesasry for Erase if it's the 1st thing the application does
+    Nop();
+    Nop();
+    Nop();
+    Nop();
+    Nop();
+    Nop();
+
     DISABLE_WDT();
     ERASE_FLASH_PAGES(FIRST_PG_APPL, LAST_PG_APPL);
     ENABLE_WDT();
@@ -257,6 +267,7 @@ static void FW_Upload_Proc(void)
                        BYTES2WORDS(progBoot.numDataBytesPack),
                        progBoot.bufferData);
     ENABLE_WDT();
+    
 
     setBootMessage(ACK_FW_UPLOAD);
     //progBoot.address+=(progBoot.numDataBytesPack/WORDSIZE);
@@ -315,7 +326,7 @@ static void FW_Upload_Proc(void)
 		if (Set_Reset == 2) {
 			/* Write operation will take a while ... */
 			DISABLE_WDT();
-			WriteFlashWord(BL_STAND_ALONE_CHECK, 0x00000000L);
+			WriteFlashDoubleWord(BL_STAND_ALONE_CHECK, 0x00000000L);
 			ENABLE_WDT();
 			Reset();
 			BL_StandAlone = CheckApplicationPresence(BL_STAND_ALONE_CHECK);

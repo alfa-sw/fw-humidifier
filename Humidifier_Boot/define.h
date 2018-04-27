@@ -21,12 +21,12 @@
 
 // 0 - 400 --> PG0 / 400 - 800 --> PG1 / 800 - C00 --> PG2 / C00 - 1000 --> PG3 / 1000 - 1400 --> PG4 / 1400 - 1800 --> PG5 / 1800 - 1C00 --> PG6
 // 1C00 - 2000 --> PG7 / 2000 - 2400 --> PG8
-//#define EXPECTED_FIRST_PAGE_APPL (8) /* starts @ 0x2000 */
-//#define FIRST_PG_APPL (START_APPL_ADDRESS / FLASH_PAGE_WORD_LENGTH)
-//#if FIRST_PG_APPL != EXPECTED_FIRST_PAGE_APPL
-//#  warning First application page does not not match expected value. Check define.h
-//#endif
-#define FIRST_PG_APPL (8)
+#define EXPECTED_FIRST_PAGE_APPL (8) /* starts @ 0x2000 */
+#define FIRST_PG_APPL (START_APPL_ADDRESS / FLASH_PAGE_WORD_LENGTH)
+#if FIRST_PG_APPL != EXPECTED_FIRST_PAGE_APPL
+#  warning First application page does not not match expected value. Check define.h
+#endif
+//#define FIRST_PG_APPL (8)
 
 //#define EXPECTED_LAST_PAGE_APPL (43) /* ends @ 0xAF00 */
 //#define LAST_PG_APPL  (END_APPL_ADDRESS / FLASH_PAGE_WORD_LENGTH)

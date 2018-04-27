@@ -354,6 +354,14 @@ void __attribute__((address(__APPL_SPI1RX))) APPLICATION_SPI1RX_InterruptHandler
 // -----------------------------------------------------------------------------
 // ISR used when only Application Program runs
 #else
+// Default Interrupt
+void __attribute__((__interrupt__,auto_psv)) _DefaultInterrupt(void);
+void _DefaultInterrupt(void)
+{
+    Nop();
+    Nop();
+    while(1);
+}
 void __attribute__((__interrupt__,auto_psv)) _T1Interrupt(void)
 {
    T1_InterruptHandler();

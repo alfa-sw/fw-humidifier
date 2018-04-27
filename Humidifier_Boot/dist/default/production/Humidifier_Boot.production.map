@@ -58,6 +58,8 @@ c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-pic30-elf.
                               c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-pic30-elf.a(crt0_extended24.o) (__data_init_da)
 c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-pic30-elf.a(crt_start_mode_normalda.Leo)
                               (__crt_start_mode_normal)
+c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-pic30-elf.a(delay32da.Leo)
+                              build/default/production/BL_UART_ServerMg.o (___delay32)
 c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-c-elf.a(memset.DA_eo)
                               build/default/production/serialCom.o (_memset)
 
@@ -65,7 +67,7 @@ c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-c-elf.a(me
 Selected CodeGuard Options:
   FSEC:BWRP:OFF
   FSEC:BSS:DISABLED
-  FSEC:BSEN:OFF
+  FSEC:BSEN:ON
   FSEC:GWRP:OFF
   FSEC:GSS:DISABLED
   FSEC:CWRP:OFF
@@ -89,15 +91,15 @@ Program Memory  [Origin = 0x200, Length = 0x1e00]
 
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
-_043023C0_at_address_00000200     0x200                 0x4             0x6  (6)
-.text                        0x204               0x316           0x4a1  (1185)
-.const                       0x51a               0x200           0x300  (768)
-.text                        0x71a              0x12fa          0x1c77  (7287)
-.dinit                      0x1a14                0x64            0x96  (150)
-_04302420_at_address_00001FFA    0x1ffa                 0x4             0x6  (6)
-_04302480_at_address_00001FFE    0x1ffe                 0x2             0x3  (3)
+_041B2000_at_address_00000200     0x200                 0x4             0x6  (6)
+.text                        0x204               0x32a           0x4bf  (1215)
+.const                       0x52e               0x200           0x300  (768)
+.text                        0x72e              0x141e          0x1e2d  (7725)
+.dinit                      0x1b4c                0x6e            0xa5  (165)
+.init.delay32               0x1bba                0x1c            0x2a  (42)
+_041B2060_at_address_00001FFE    0x1ffe                 0x2             0x3  (3)
 
-                 Total program memory used (bytes):         0x24bd  (9405) 81%
+                 Total program memory used (bytes):         0x26c4  (9924) 86%
 
 
 Ivt Memory  [Origin = 0x4, Length = 0xfc]
@@ -128,10 +130,11 @@ section                    address      alignment gaps    total length  (dec)
 .bss                         0x81a                   0           0x168  (360)
 .data                        0x982                   0             0x6  (6)
 .bss                         0x988                   0             0x6  (6)
-_04229900_at_address_00000FFC     0xffc                   0             0x2  (2)
-_042298A0_at_address_00000FFE     0xffe                   0             0x2  (2)
+_0425D9C0_at_address_00000FF8     0xff8                   0             0x4  (4)
+_0425D900_at_address_00000FFC     0xffc                   0             0x2  (2)
+_0425D8A0_at_address_00000FFE     0xffe                   0             0x2  (2)
 
-                 Total data memory used (bytes):          0x192  (402) 19%
+                 Total data memory used (bytes):          0x196  (406) 19%
 
 
 Dynamic Memory Usage
@@ -139,9 +142,9 @@ Dynamic Memory Usage
 region                     address                      maximum length  (dec)
 ------                     -------                      ---------------------
 heap                             0                                   0  (0)
-stack                        0x98e                               0x66e  (1646)
+stack                        0x98e                               0x66a  (1642)
 
-                 Maximum dynamic memory (bytes):          0x66e  (1646)
+                 Maximum dynamic memory (bytes):          0x66a  (1642)
 
 
 External Symbols in Data Memory (by address):
@@ -160,6 +163,7 @@ External Symbols in Data Memory (by address):
                     0x0976                  _BL_TimStr
                     0x0982                  _BL_Durata
                     0x0988                  _BLState
+                    0x0ff8                  _boot_fw_version
                     0x0ffc                  _program_active
                     0x0ffe                  _slave_index
 
@@ -173,6 +177,7 @@ External Symbols in Data Memory (by name):
                     0x0806                  _FlashMemoryValue
                     0x0800                  _ReadFlashMemory
                     0x0814                  _Set_Reset
+                    0x0ff8                  _boot_fw_version
                     0x0816                  _deviceID
                     0x0930                  _progBoot
                     0x0ffc                  _program_active
@@ -187,55 +192,55 @@ External Symbols in Program Memory (by address):
                   0x000200                  _Bootloader
                   0x000204                  __resetPRI
                   0x000240                  __psv_init
-                  0x000256                  __data_init_da
                   0x000256                  __data_init
-                  0x000318                  __T1Interrupt
-                  0x000350                  __U1RXInterrupt
-                  0x000376                  __U1TXInterrupt
-                  0x00039c                  __MI2C1Interrupt
-                  0x0003c4                  __SPI1Interrupt
-                  0x0003ea                  __SPI1TXInterrupt
-                  0x000410                  __SPI1RXInterrupt
-                  0x000436                  __OscillatorFail
-                  0x000450                  __AddressError
-                  0x00046a                  __StackError
-                  0x000484                  __MathError
-                  0x00049e                  __AltOscillatorFail
-                  0x0004b8                  __AltAddressError
-                  0x0004d2                  __AltStackError
-                  0x0004ec                  __AltMathError
-                  0x000506                  __DefaultInterrupt
-                  0x00050c                  _memset
-                  0x00051a                  _BL_CRC_TABLE
-                  0x00071a                  _MakeBootMessage
-                  0x0008d4                  _DecodeBootMessage
-                  0x000e64                  _BL_UART_ServerMg
-                  0x00134c                  _BL_initSerialCom
-                  0x001390                  _BL_serialCommManager
-                  0x00139c                  _BL_stuff_byte
-                  0x00142e                  _BOOT_U1TX_InterruptHandler
-                  0x001482                  _BOOT_U1RX_InterruptHandler
-                  0x0014c4                  _BL_GestStandAlone
-                  0x00151a                  _Pippo
-                  0x00152e                  _BL_CRCarea
-                  0x00157c                  _BL_CRCareaFlash
-                  0x001620                  _BL_UserInit
-                  0x00169c                  _CheckApplicationPresence
-                  0x001752                  _BL_inputManager
-                  0x00179e                  _jump_to_appl
-                  0x0017b2                  _main
-                  0x0017e2                  _BOOT_MI2C1_InterruptHandler
-                  0x0017ea                  _BOOT_SPI1_InterruptHandler
-                  0x0017f2                  _BOOT_SPI1TX_InterruptHandler
-                  0x0017fa                  _BOOT_SPI1RX_InterruptHandler
-                  0x001802                  _WriteFlashWord
-                  0x001878                  _ReadProgramMemory
-                  0x0018a8                  _WriteFlashSubBlock
-                  0x00191e                  _EraseFlashPage
-                  0x001968                  _BL_TimerMg
-                  0x0019de                  _BL_TimerInit
-                  0x001a08                  _BOOT_T1_InterruptHandler
-                  0x001ffa                  _dummy0
+                  0x000256                  __data_init_da
+                  0x000318                  __DefaultInterrupt
+                  0x000330                  __T1Interrupt
+                  0x000368                  __U1RXInterrupt
+                  0x00038e                  __U1TXInterrupt
+                  0x0003b4                  __MI2C1Interrupt
+                  0x0003dc                  __SPI1Interrupt
+                  0x000402                  __SPI1TXInterrupt
+                  0x000428                  __SPI1RXInterrupt
+                  0x00044e                  __OscillatorFail
+                  0x000468                  __AddressError
+                  0x000482                  __StackError
+                  0x00049c                  __MathError
+                  0x0004b6                  __AltOscillatorFail
+                  0x0004d0                  __AltAddressError
+                  0x0004ea                  __AltStackError
+                  0x000504                  __AltMathError
+                  0x000520                  _memset
+                  0x00052e                  _BL_CRC_TABLE
+                  0x00072e                  _MakeBootMessage
+                  0x0008f0                  _DecodeBootMessage
+                  0x000ee6                  _BL_UART_ServerMg
+                  0x0013ce                  _BL_initSerialCom
+                  0x001412                  _BL_serialCommManager
+                  0x00141e                  _BL_stuff_byte
+                  0x0014b0                  _BOOT_U1TX_InterruptHandler
+                  0x001504                  _BOOT_U1RX_InterruptHandler
+                  0x001546                  _BL_GestStandAlone
+                  0x00159c                  _Pippo
+                  0x0015b0                  _BL_CRCarea
+                  0x0015fe                  _BL_CRCareaFlash
+                  0x0016a4                  _BL_UserInit
+                  0x001720                  _CheckApplicationPresence
+                  0x0017ea                  _BL_inputManager
+                  0x001836                  _jump_to_appl
+                  0x001852                  _main
+                  0x001882                  _BOOT_MI2C1_InterruptHandler
+                  0x00188a                  _BOOT_SPI1_InterruptHandler
+                  0x001892                  _BOOT_SPI1TX_InterruptHandler
+                  0x00189a                  _BOOT_SPI1RX_InterruptHandler
+                  0x0018a2                  _WriteFlashDoubleWord
+                  0x001974                  _ReadProgramMemory
+                  0x0019a4                  _WriteFlashSubBlock
+                  0x001a56                  _EraseFlashPage
+                  0x001aa0                  _BL_TimerMg
+                  0x001b16                  _BL_TimerInit
+                  0x001b40                  _BOOT_T1_InterruptHandler
+                  0x001bba                  ___delay32
                   0x001ffe                  _dummy1
                   0x00201a                  _APPLICATION_T1_InterruptHandler
                   0x002024                  _APPLICATION_U1RX_InterruptHandler
@@ -255,60 +260,60 @@ External Symbols in Program Memory (by name):
                   0x00201a                  _APPLICATION_T1_InterruptHandler
                   0x002024                  _APPLICATION_U1RX_InterruptHandler
                   0x00202e                  _APPLICATION_U1TX_InterruptHandler
-                  0x00051a                  _BL_CRC_TABLE
-                  0x00152e                  _BL_CRCarea
-                  0x00157c                  _BL_CRCareaFlash
-                  0x0014c4                  _BL_GestStandAlone
-                  0x0019de                  _BL_TimerInit
-                  0x001968                  _BL_TimerMg
-                  0x000e64                  _BL_UART_ServerMg
-                  0x001620                  _BL_UserInit
-                  0x00134c                  _BL_initSerialCom
-                  0x001752                  _BL_inputManager
-                  0x001390                  _BL_serialCommManager
-                  0x00139c                  _BL_stuff_byte
-                  0x0017e2                  _BOOT_MI2C1_InterruptHandler
-                  0x0017fa                  _BOOT_SPI1RX_InterruptHandler
-                  0x0017f2                  _BOOT_SPI1TX_InterruptHandler
-                  0x0017ea                  _BOOT_SPI1_InterruptHandler
-                  0x001a08                  _BOOT_T1_InterruptHandler
-                  0x001482                  _BOOT_U1RX_InterruptHandler
-                  0x00142e                  _BOOT_U1TX_InterruptHandler
+                  0x00052e                  _BL_CRC_TABLE
+                  0x0015b0                  _BL_CRCarea
+                  0x0015fe                  _BL_CRCareaFlash
+                  0x001546                  _BL_GestStandAlone
+                  0x001b16                  _BL_TimerInit
+                  0x001aa0                  _BL_TimerMg
+                  0x000ee6                  _BL_UART_ServerMg
+                  0x0016a4                  _BL_UserInit
+                  0x0013ce                  _BL_initSerialCom
+                  0x0017ea                  _BL_inputManager
+                  0x001412                  _BL_serialCommManager
+                  0x00141e                  _BL_stuff_byte
+                  0x001882                  _BOOT_MI2C1_InterruptHandler
+                  0x00189a                  _BOOT_SPI1RX_InterruptHandler
+                  0x001892                  _BOOT_SPI1TX_InterruptHandler
+                  0x00188a                  _BOOT_SPI1_InterruptHandler
+                  0x001b40                  _BOOT_T1_InterruptHandler
+                  0x001504                  _BOOT_U1RX_InterruptHandler
+                  0x0014b0                  _BOOT_U1TX_InterruptHandler
                   0x000200                  _Bootloader
-                  0x00169c                  _CheckApplicationPresence
-                  0x0008d4                  _DecodeBootMessage
-                  0x00191e                  _EraseFlashPage
-                  0x00071a                  _MakeBootMessage
-                  0x00151a                  _Pippo
-                  0x001878                  _ReadProgramMemory
-                  0x0018a8                  _WriteFlashSubBlock
-                  0x001802                  _WriteFlashWord
-                  0x000450                  __AddressError
-                  0x0004b8                  __AltAddressError
-                  0x0004ec                  __AltMathError
-                  0x00049e                  __AltOscillatorFail
-                  0x0004d2                  __AltStackError
-                  0x000506                  __DefaultInterrupt
+                  0x001720                  _CheckApplicationPresence
+                  0x0008f0                  _DecodeBootMessage
+                  0x001a56                  _EraseFlashPage
+                  0x00072e                  _MakeBootMessage
+                  0x00159c                  _Pippo
+                  0x001974                  _ReadProgramMemory
+                  0x0018a2                  _WriteFlashDoubleWord
+                  0x0019a4                  _WriteFlashSubBlock
+                  0x000468                  __AddressError
+                  0x0004d0                  __AltAddressError
+                  0x000504                  __AltMathError
+                  0x0004b6                  __AltOscillatorFail
+                  0x0004ea                  __AltStackError
+                  0x000318                  __DefaultInterrupt
                   0x00af00                  __FSEC.sec
-                  0x00039c                  __MI2C1Interrupt
-                  0x000484                  __MathError
-                  0x000436                  __OscillatorFail
-                  0x0003c4                  __SPI1Interrupt
-                  0x000410                  __SPI1RXInterrupt
-                  0x0003ea                  __SPI1TXInterrupt
-                  0x00046a                  __StackError
-                  0x000318                  __T1Interrupt
-                  0x000350                  __U1RXInterrupt
-                  0x000376                  __U1TXInterrupt
+                  0x0003b4                  __MI2C1Interrupt
+                  0x00049c                  __MathError
+                  0x00044e                  __OscillatorFail
+                  0x0003dc                  __SPI1Interrupt
+                  0x000428                  __SPI1RXInterrupt
+                  0x000402                  __SPI1TXInterrupt
+                  0x000482                  __StackError
+                  0x000330                  __T1Interrupt
+                  0x000368                  __U1RXInterrupt
+                  0x00038e                  __U1TXInterrupt
+                  0x001bba                  ___delay32
                   0x000256                  __data_init
                   0x000256                  __data_init_da
                   0x000240                  __psv_init
                   0x000204                  __resetPRI
-                  0x001ffa                  _dummy0
                   0x001ffe                  _dummy1
-                  0x00179e                  _jump_to_appl
-                  0x0017b2                  _main
-                  0x00050c                  _memset
+                  0x001836                  _jump_to_appl
+                  0x001852                  _main
+                  0x000520                  _memset
 
 Memory Configuration
 
@@ -365,7 +370,7 @@ LOAD c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\libfx-elf.a
                   0x000002          0x2 SHORT 0x0 ((ABSOLUTE (__reset) >> 0x10) & 0x7f)
                   0x000003          0x2 SHORT 0x0
 
-.text             0x000204        0x316
+.text             0x000204        0x32a
  *(.init)
  .init            0x000204         0x4c c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-pic30-elf.a(crt0_extended24.o)
                   0x000204                  __resetPRI
@@ -377,35 +382,34 @@ LOAD c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\libfx-elf.a
  *(.user_init)
  *(.handle)
  *(.isr*)
- .isr.text        0x000318        0x11e build/default/production/main.o
-                  0x000318                  __T1Interrupt
-                  0x000350                  __U1RXInterrupt
-                  0x000376                  __U1TXInterrupt
-                  0x00039c                  __MI2C1Interrupt
-                  0x0003c4                  __SPI1Interrupt
-                  0x0003ea                  __SPI1TXInterrupt
-                  0x000410                  __SPI1RXInterrupt
- .isr.text        0x000436         0xd0 build/default/production/traps.o
-                  0x000436                  __OscillatorFail
-                  0x000450                  __AddressError
-                  0x00046a                  __StackError
-                  0x000484                  __MathError
-                  0x00049e                  __AltOscillatorFail
-                  0x0004b8                  __AltAddressError
-                  0x0004d2                  __AltStackError
-                  0x0004ec                  __AltMathError
- .isr             0x000506          0x4 default_isr
-                  0x000506                  __DefaultInterrupt
+ .isr.text        0x000318        0x136 build/default/production/main.o
+                  0x000318                  __DefaultInterrupt
+                  0x000330                  __T1Interrupt
+                  0x000368                  __U1RXInterrupt
+                  0x00038e                  __U1TXInterrupt
+                  0x0003b4                  __MI2C1Interrupt
+                  0x0003dc                  __SPI1Interrupt
+                  0x000402                  __SPI1TXInterrupt
+                  0x000428                  __SPI1RXInterrupt
+ .isr.text        0x00044e         0xd0 build/default/production/traps.o
+                  0x00044e                  __OscillatorFail
+                  0x000468                  __AddressError
+                  0x000482                  __StackError
+                  0x00049c                  __MathError
+                  0x0004b6                  __AltOscillatorFail
+                  0x0004d0                  __AltAddressError
+                  0x0004ea                  __AltStackError
+                  0x000504                  __AltMathError
  *(.libc)
  *(.libm)
  *(.libdsp)
  *(.lib*)
  .libpic30_crt_start_mode
-                  0x00050a          0x2 c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-pic30-elf.a(crt_start_mode_normalda.Leo)
-                  0x00050a                  __crt_start_mode
-                  0x00050a                  __crt_start_mode_normal
- .libc.memset     0x00050c          0xe c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-c-elf.a(memset.DA_eo)
-                  0x00050c                  _memset
+                  0x00051e          0x2 c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-pic30-elf.a(crt_start_mode_normalda.Leo)
+                  0x00051e                  __crt_start_mode
+                  0x00051e                  __crt_start_mode_normal
+ .libc.memset     0x000520          0xe c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-c-elf.a(memset.DA_eo)
+                  0x000520                  _memset
 
 usercode
  *(usercode)
@@ -442,57 +446,57 @@ __FDEVOPT1
 .comment
  *(.comment)
 
-.debug_info       0x000000       0x5eb5
+.debug_info       0x000000       0x601a
  *(.debug_info)
  .debug_info      0x000000        0xf00 build/default/production/BL_UART_ServerMg.o
  .debug_info      0x000f00         0xf2 build/default/production/Const.o
- .debug_info      0x000ff2       0x23b0 build/default/production/main.o
- .debug_info      0x0033a2        0xa19 build/default/production/TimerMg.o
- .debug_info      0x003dbb        0xa30 build/default/production/progMemFunctions.o
- .debug_info      0x0047eb       0x111c build/default/production/serialCom.o
- .debug_info      0x005907        0x2ce build/default/production/traps.o
- .debug_info      0x005bd5        0x2e0 build/default/production/ram.o
+ .debug_info      0x000ff2       0x24d0 build/default/production/main.o
+ .debug_info      0x0034c2        0xa19 build/default/production/TimerMg.o
+ .debug_info      0x003edb        0xa52 build/default/production/progMemFunctions.o
+ .debug_info      0x00492d       0x111c build/default/production/serialCom.o
+ .debug_info      0x005a49        0x2ce build/default/production/traps.o
+ .debug_info      0x005d17        0x303 build/default/production/ram.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev     0x000000        0xb38
+.debug_abbrev     0x000000        0xb47
  *(.debug_abbrev)
  .debug_abbrev    0x000000        0x210 build/default/production/BL_UART_ServerMg.o
  .debug_abbrev    0x000210         0x49 build/default/production/Const.o
  .debug_abbrev    0x000259        0x2bd build/default/production/main.o
  .debug_abbrev    0x000516        0x175 build/default/production/TimerMg.o
- .debug_abbrev    0x00068b        0x177 build/default/production/progMemFunctions.o
- .debug_abbrev    0x000802        0x232 build/default/production/serialCom.o
- .debug_abbrev    0x000a34         0x7d build/default/production/traps.o
- .debug_abbrev    0x000ab1         0x87 build/default/production/ram.o
+ .debug_abbrev    0x00068b        0x186 build/default/production/progMemFunctions.o
+ .debug_abbrev    0x000811        0x232 build/default/production/serialCom.o
+ .debug_abbrev    0x000a43         0x7d build/default/production/traps.o
+ .debug_abbrev    0x000ac0         0x87 build/default/production/ram.o
 
-.debug_line       0x000000        0xa6d
+.debug_line       0x000000        0xa90
  *(.debug_line)
- .debug_line      0x000000        0x19c build/default/production/BL_UART_ServerMg.o
- .debug_line      0x00019c         0x25 build/default/production/Const.o
- .debug_line      0x0001c1        0x2e0 build/default/production/main.o
- .debug_line      0x0004a1        0x112 build/default/production/TimerMg.o
- .debug_line      0x0005b3        0x149 build/default/production/progMemFunctions.o
- .debug_line      0x0006fc        0x1f9 build/default/production/serialCom.o
- .debug_line      0x0008f5        0x149 build/default/production/traps.o
- .debug_line      0x000a3e         0x2f build/default/production/ram.o
+ .debug_line      0x000000        0x1a9 build/default/production/BL_UART_ServerMg.o
+ .debug_line      0x0001a9         0x25 build/default/production/Const.o
+ .debug_line      0x0001ce        0x2e9 build/default/production/main.o
+ .debug_line      0x0004b7        0x112 build/default/production/TimerMg.o
+ .debug_line      0x0005c9        0x156 build/default/production/progMemFunctions.o
+ .debug_line      0x00071f        0x1f9 build/default/production/serialCom.o
+ .debug_line      0x000918        0x149 build/default/production/traps.o
+ .debug_line      0x000a61         0x2f build/default/production/ram.o
 
-.debug_frame      0x000000        0x846
+.debug_frame      0x000000        0x870
  *(.debug_frame)
  .debug_frame     0x000000         0xa0 build/default/production/BL_UART_ServerMg.o
- .debug_frame     0x0000a0        0x478 build/default/production/main.o
- .debug_frame     0x000518         0x68 build/default/production/TimerMg.o
- .debug_frame     0x000580         0x84 build/default/production/progMemFunctions.o
- .debug_frame     0x000604        0x14e build/default/production/serialCom.o
- .debug_frame     0x000752         0xf4 build/default/production/traps.o
+ .debug_frame     0x0000a0        0x49c build/default/production/main.o
+ .debug_frame     0x00053c         0x68 build/default/production/TimerMg.o
+ .debug_frame     0x0005a4         0x8a build/default/production/progMemFunctions.o
+ .debug_frame     0x00062e        0x14e build/default/production/serialCom.o
+ .debug_frame     0x00077c         0xf4 build/default/production/traps.o
 
-.debug_str        0x000000        0x1fa
+.debug_str        0x000000        0x242
  *(.debug_str)
  .debug_str       0x000000         0x50 build/default/production/BL_UART_ServerMg.o
- .debug_str       0x000050         0xd7 build/default/production/main.o
- .debug_str       0x000127         0x39 build/default/production/TimerMg.o
- .debug_str       0x000160          0xb build/default/production/progMemFunctions.o
- .debug_str       0x00016b         0x83 build/default/production/serialCom.o
- .debug_str       0x0001ee          0xc build/default/production/traps.o
+ .debug_str       0x000050         0xf3 build/default/production/main.o
+ .debug_str       0x000143         0x39 build/default/production/TimerMg.o
+ .debug_str       0x00017c         0x37 build/default/production/progMemFunctions.o
+ .debug_str       0x0001b3         0x83 build/default/production/serialCom.o
+ .debug_str       0x000236          0xc build/default/production/traps.o
 
 .debug_loc
  *(.debug_loc)
@@ -501,24 +505,24 @@ __FDEVOPT1
  *(.debug_macinfo)
 
 .debug_pubnames
-                  0x000000        0x657
+                  0x000000        0x67c
  *(.debug_pubnames)
  .debug_pubnames
                   0x000000         0x73 build/default/production/BL_UART_ServerMg.o
  .debug_pubnames
                   0x000073         0x23 build/default/production/Const.o
  .debug_pubnames
-                  0x000096        0x311 build/default/production/main.o
+                  0x000096        0x31c build/default/production/main.o
  .debug_pubnames
-                  0x0003a7         0x6b build/default/production/TimerMg.o
+                  0x0003b2         0x6b build/default/production/TimerMg.o
  .debug_pubnames
-                  0x000412         0x65 build/default/production/progMemFunctions.o
+                  0x00041d         0x6b build/default/production/progMemFunctions.o
  .debug_pubnames
-                  0x000477         0xc7 build/default/production/serialCom.o
+                  0x000488         0xc7 build/default/production/serialCom.o
  .debug_pubnames
-                  0x00053e         0xa8 build/default/production/traps.o
+                  0x00054f         0xa8 build/default/production/traps.o
  .debug_pubnames
-                  0x0005e6         0x71 build/default/production/ram.o
+                  0x0005f7         0x85 build/default/production/ram.o
 
 .debug_ranges
  *(.debug_ranges)
@@ -1962,60 +1966,67 @@ END GROUP
 OUTPUT(dist/default/production/Humidifier_Boot.production.elf elf32-pic30)
 LOAD FSEC
 LOAD jump_table
-LOAD default_isr
 LOAD data_init
 
 .debug_pubtypes
-                  0x0000c8        0x5d9
+                  0x0000c8        0x5fc
  .debug_pubtypes
                   0x0000c8         0xbf build/default/production/BL_UART_ServerMg.o
  .debug_pubtypes
-                  0x000187        0x24d build/default/production/main.o
+                  0x000187        0x270 build/default/production/main.o
  .debug_pubtypes
-                  0x0003d4         0xa4 build/default/production/TimerMg.o
+                  0x0003f7         0xa4 build/default/production/TimerMg.o
  .debug_pubtypes
-                  0x000478         0x94 build/default/production/progMemFunctions.o
+                  0x00049b         0x94 build/default/production/progMemFunctions.o
  .debug_pubtypes
-                  0x00050c        0x12a build/default/production/serialCom.o
+                  0x00052f        0x12a build/default/production/serialCom.o
  .debug_pubtypes
-                  0x000636         0x42 build/default/production/traps.o
+                  0x000659         0x42 build/default/production/traps.o
  .debug_pubtypes
-                  0x000678         0x29 build/default/production/ram.o
+                  0x00069b         0x29 build/default/production/ram.o
 
 __c30_signature
-                  0x0006a1         0x42
+                  0x0006c4         0x48
  __c30_signature
-                  0x0006a1          0x6 build/default/production/BL_UART_ServerMg.o
+                  0x0006c4          0x6 build/default/production/BL_UART_ServerMg.o
  __c30_signature
-                  0x0006a7          0x6 build/default/production/Const.o
+                  0x0006ca          0x6 build/default/production/Const.o
  __c30_signature
-                  0x0006ad          0x6 build/default/production/main.o
+                  0x0006d0          0x6 build/default/production/main.o
  __c30_signature
-                  0x0006b3          0x6 build/default/production/TimerMg.o
+                  0x0006d6          0x6 build/default/production/TimerMg.o
  __c30_signature
-                  0x0006b9          0x6 build/default/production/progMemFunctions.o
+                  0x0006dc          0x6 build/default/production/progMemFunctions.o
  __c30_signature
-                  0x0006bf          0x6 build/default/production/serialCom.o
+                  0x0006e2          0x6 build/default/production/serialCom.o
  __c30_signature
-                  0x0006c5          0x6 build/default/production/traps.o
+                  0x0006e8          0x6 build/default/production/traps.o
  __c30_signature
-                  0x0006cb          0x6 build/default/production/ram.o
+                  0x0006ee          0x6 build/default/production/ram.o
  __c30_signature
-                  0x0006d1          0x6 c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-pic30-elf.a(crt0_extended24.o)
+                  0x0006f4          0x6 c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-pic30-elf.a(crt0_extended24.o)
  __c30_signature
-                  0x0006d7          0x6 c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-pic30-elf.a(data_init_24.o)
+                  0x0006fa          0x6 c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-pic30-elf.a(data_init_24.o)
  __c30_signature
-                  0x0006dd          0x6 c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-c-elf.a(memset.DA_eo)
+                  0x000700          0x6 c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-pic30-elf.a(delay32da.Leo)
+ __c30_signature
+                  0x000706          0x6 c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-c-elf.a(memset.DA_eo)
 
-_042298A0_at_address_00000FFE
+_0425D9C0_at_address_00000FF8
+                    0x0ff8          0x4
+ _0425D9C0_at_address_00000FF8
+                    0x0ff8          0x4 build/default/production/ram.o
+                    0x0ff8                  _boot_fw_version
+
+_0425D8A0_at_address_00000FFE
                     0x0ffe          0x2
- _042298A0_at_address_00000FFE
+ _0425D8A0_at_address_00000FFE
                     0x0ffe          0x2 build/default/production/ram.o
                     0x0ffe                  _slave_index
 
-_04229900_at_address_00000FFC
+_0425D900_at_address_00000FFC
                     0x0ffc          0x2
- _04229900_at_address_00000FFC
+ _0425D900_at_address_00000FFC
                     0x0ffc          0x2 build/default/production/ram.o
                     0x0ffc                  _program_active
 
@@ -2059,63 +2070,57 @@ _04229900_at_address_00000FFC
  .bss               0x0988          0x6 build/default/production/ram.o
                     0x0988                  _BLState
 
-_04303500_at_address_0000201A
+_041B0980_at_address_0000201A
                   0x00201a          0x8
- _04303500_at_address_0000201A
+ _041B0980_at_address_0000201A
                   0x00201a          0x8 build/default/production/main.o
                   0x00201a                  _APPLICATION_T1_InterruptHandler
 
-_04303600_at_address_00002024
+_041B0A80_at_address_00002024
                   0x002024          0x8
- _04303600_at_address_00002024
+ _041B0A80_at_address_00002024
                   0x002024          0x8 build/default/production/main.o
                   0x002024                  _APPLICATION_U1RX_InterruptHandler
 
-_04303580_at_address_0000202E
+_041B0A00_at_address_0000202E
                   0x00202e          0x8
- _04303580_at_address_0000202E
+ _041B0A00_at_address_0000202E
                   0x00202e          0x8 build/default/production/main.o
                   0x00202e                  _APPLICATION_U1TX_InterruptHandler
 
-_04303680_at_address_00002038
+_041B0B00_at_address_00002038
                   0x002038          0x8
- _04303680_at_address_00002038
+ _041B0B00_at_address_00002038
                   0x002038          0x8 build/default/production/main.o
                   0x002038                  _APPLICATION_MI2C1_InterruptHandler
 
-_04303700_at_address_00002042
+_041B0B80_at_address_00002042
                   0x002042          0x8
- _04303700_at_address_00002042
+ _041B0B80_at_address_00002042
                   0x002042          0x8 build/default/production/main.o
                   0x002042                  _APPLICATION_SPI1_InterruptHandler
 
-_04303780_at_address_0000204C
+_041B0C00_at_address_0000204C
                   0x00204c          0x8
- _04303780_at_address_0000204C
+ _041B0C00_at_address_0000204C
                   0x00204c          0x8 build/default/production/main.o
                   0x00204c                  _APPLICATION_SPI1TX_InterruptHandler
 
-_04303800_at_address_00002056
+_041B0C80_at_address_00002056
                   0x002056          0x8
- _04303800_at_address_00002056
+ _041B0C80_at_address_00002056
                   0x002056          0x8 build/default/production/main.o
                   0x002056                  _APPLICATION_SPI1RX_InterruptHandler
 
-_043023C0_at_address_00000200
+_041B2000_at_address_00000200
                   0x000200          0x4
- _043023C0_at_address_00000200
+ _041B2000_at_address_00000200
                   0x000200          0x4 build/default/production/main.o
                   0x000200                  _Bootloader
 
-_04302420_at_address_00001FFA
-                    0x9ffa          0x4 load address 0x001ffa  
- _04302420_at_address_00001FFA
-                    0x9ffa          0x4 build/default/production/main.o
-                    0x9ffa                  _dummy0
-
-_04302480_at_address_00001FFE
+_041B2060_at_address_00001FFE
                     0x9ffe          0x2 load address 0x001ffe  
- _04302480_at_address_00001FFE
+ _041B2060_at_address_00001FFE
                     0x9ffe          0x2 build/default/production/main.o
                     0x9ffe                  _dummy1
 
@@ -2220,44 +2225,48 @@ _04302480_at_address_00001FFE
  .aivt._AltMathError
                   0xfffff80c          0x2 build/default/production/traps.o
 
-.const              0x851a        0x200 load address 0x00051a  
- .const             0x851a        0x200 build/default/production/Const.o
-                    0x851a                  _BL_CRC_TABLE
+.const              0x852e        0x200 load address 0x00052e  
+ .const             0x852e        0x200 build/default/production/Const.o
+                    0x852e                  _BL_CRC_TABLE
 
-.text             0x00071a       0x12fa
- .text            0x00071a        0x7fc build/default/production/BL_UART_ServerMg.o
-                  0x00071a                  _MakeBootMessage
-                  0x0008d4                  _DecodeBootMessage
-                  0x000e64                  _BL_UART_ServerMg
- .text            0x000f16        0x5ae build/default/production/serialCom.o
-                  0x00134c                  _BL_initSerialCom
-                  0x001390                  _BL_serialCommManager
-                  0x00139c                  _BL_stuff_byte
-                  0x00142e                  _BOOT_U1TX_InterruptHandler
-                  0x001482                  _BOOT_U1RX_InterruptHandler
- .text            0x0014c4        0x33e build/default/production/main.o
-                  0x0014c4                  _BL_GestStandAlone
-                  0x00151a                  _Pippo
-                  0x00152e                  _BL_CRCarea
-                  0x00157c                  _BL_CRCareaFlash
-                  0x001620                  _BL_UserInit
-                  0x00169c                  _CheckApplicationPresence
-                  0x001752                  _BL_inputManager
-                  0x00179e                  _jump_to_appl
-                  0x0017b2                  _main
-                  0x0017e2                  _BOOT_MI2C1_InterruptHandler
-                  0x0017ea                  _BOOT_SPI1_InterruptHandler
-                  0x0017f2                  _BOOT_SPI1TX_InterruptHandler
-                  0x0017fa                  _BOOT_SPI1RX_InterruptHandler
- .text            0x001802        0x166 build/default/production/progMemFunctions.o
-                  0x001802                  _WriteFlashWord
-                  0x001878                  _ReadProgramMemory
-                  0x0018a8                  _WriteFlashSubBlock
-                  0x00191e                  _EraseFlashPage
- .text            0x001968         0xac build/default/production/TimerMg.o
-                  0x001968                  _BL_TimerMg
-                  0x0019de                  _BL_TimerInit
-                  0x001a08                  _BOOT_T1_InterruptHandler
+.text             0x00072e       0x141e
+ .text            0x00072e        0x86a build/default/production/BL_UART_ServerMg.o
+                  0x00072e                  _MakeBootMessage
+                  0x0008f0                  _DecodeBootMessage
+                  0x000ee6                  _BL_UART_ServerMg
+ .text            0x000f98        0x5ae build/default/production/serialCom.o
+                  0x0013ce                  _BL_initSerialCom
+                  0x001412                  _BL_serialCommManager
+                  0x00141e                  _BL_stuff_byte
+                  0x0014b0                  _BOOT_U1TX_InterruptHandler
+                  0x001504                  _BOOT_U1RX_InterruptHandler
+ .text            0x001546        0x35c build/default/production/main.o
+                  0x001546                  _BL_GestStandAlone
+                  0x00159c                  _Pippo
+                  0x0015b0                  _BL_CRCarea
+                  0x0015fe                  _BL_CRCareaFlash
+                  0x0016a4                  _BL_UserInit
+                  0x001720                  _CheckApplicationPresence
+                  0x0017ea                  _BL_inputManager
+                  0x001836                  _jump_to_appl
+                  0x001852                  _main
+                  0x001882                  _BOOT_MI2C1_InterruptHandler
+                  0x00188a                  _BOOT_SPI1_InterruptHandler
+                  0x001892                  _BOOT_SPI1TX_InterruptHandler
+                  0x00189a                  _BOOT_SPI1RX_InterruptHandler
+ .text            0x0018a2        0x1fe build/default/production/progMemFunctions.o
+                  0x0018a2                  _WriteFlashDoubleWord
+                  0x001974                  _ReadProgramMemory
+                  0x0019a4                  _WriteFlashSubBlock
+                  0x001a56                  _EraseFlashPage
+ .text            0x001aa0         0xac build/default/production/TimerMg.o
+                  0x001aa0                  _BL_TimerMg
+                  0x001b16                  _BL_TimerInit
+                  0x001b40                  _BOOT_T1_InterruptHandler
 
-.dinit            0x001a14         0x64
- .dinit           0x001a14         0x64 data_init
+.dinit            0x001b4c         0x6e
+ .dinit           0x001b4c         0x6e data_init
+
+.init.delay32     0x001bba         0x1c
+ .init.delay32    0x001bba         0x1c c:/program files (x86)/microchip/xc16/v1.33/bin/bin/../../lib\liblega-pic30-elf.a(delay32da.Leo)
+                  0x001bba                  ___delay32
