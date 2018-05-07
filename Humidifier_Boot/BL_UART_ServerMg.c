@@ -272,10 +272,10 @@ static void FW_Upload_Proc(void)
     setBootMessage(ACK_FW_UPLOAD);
     //progBoot.address+=(progBoot.numDataBytesPack/WORDSIZE);
 
-    if (progBoot.idDataPackRx < progBoot.numDataPack) {
+//    if (progBoot.idDataPackRx < progBoot.numDataPack) {
       ++ progBoot.idDataPackExpected;
       BLState.step = WAIT_DATA_PACKET;
-    }
+//    }
     break;
 
   case PROGRAM_END:
@@ -290,10 +290,10 @@ static void FW_Upload_Proc(void)
     setBootMessage(ACK_FW_UPLOAD);
     //progBoot.address+=(progBoot.numDataBytesPack/WORD_SIZE);
 
-    if (progBoot.idDataPackRx < progBoot.numDataPack) {
+//    if (progBoot.idDataPackRx < progBoot.numDataPack) {
       ++ progBoot.idDataPackExpected;
       BLState.step = WAIT_DATA_PACKET;
-    }
+//    }
    break;
 
   case GET_DATA:
