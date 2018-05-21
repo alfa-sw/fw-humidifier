@@ -243,7 +243,7 @@ int main(void)
 #else
 #endif	
 
-//    StartTimer(T_LED_DURATION_ON);
+    StartTimer(T_LED_DURATION_ON);
     StartTimer(T_ERROR_STATUS);
     while (1)
 	{
@@ -296,7 +296,7 @@ int main(void)
             {
                 stato_led = ON;
                 LED = ON;
-                HumidifierAct.Led_state = ON;                
+                HumidifierAct.Led_state = ON;
 //                AIR_PUMP_ON();
             }
             else

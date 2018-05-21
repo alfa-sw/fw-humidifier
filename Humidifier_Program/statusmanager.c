@@ -107,6 +107,9 @@ void StopHumidifier(void)
 	AIR_PUMP_OFF();
     RISCALDATORE_OFF();
 //	StopSensor();
+	HumidifierAct.Nebulizer_state = OFF;
+	HumidifierAct.Pump_state = OFF;
+    HumidifierAct.Riscaldatore_state = OFF;
 }
 
 /*
@@ -202,7 +205,6 @@ void humidifierStatusManager(void)
     static short int start_timer;
 	unsigned long Dos_Temperature;
 	unsigned long Temperature, RH;
-	static unsigned char Dos_Temperature_Enable;
 	static unsigned long Process_Pump_Duration, Process_Neb_Duration;
 	
 	switch (Status.level)
@@ -235,9 +237,9 @@ void humidifierStatusManager(void)
             Humidifier_Count_Err = 0;
             Dos_Temperature_Count_Err = 0;
             start_timer = OFF;
-			HumidifierAct.Nebulizer_state = OFF;
-			HumidifierAct.Pump_state = OFF;
-            HumidifierAct.Riscaldatore_state = OFF;
+//			HumidifierAct.Nebulizer_state = OFF;
+//			HumidifierAct.Pump_state = OFF;
+//            HumidifierAct.Riscaldatore_state = OFF;
 			if ( ((HumidifierAct.Humidifier_Enable == HUMIDIFIER_ENABLE) && (HumidifierAct.Humdifier_Type == HUMIDIFIER_TYPE_0) && (Humidifier_Count_Disable_Err < HUMIDIFIER_MAX_ERROR_DISABLE))
                                                             ||
                  ((HumidifierAct.Humidifier_Enable == HUMIDIFIER_ENABLE) && (HumidifierAct.Humdifier_Type == HUMIDIFIER_TYPE_1)) )
@@ -342,10 +344,10 @@ void humidifierStatusManager(void)
 					StopTimer(T_DOS_PERIOD);
 					if (HumidifierAct.Temp_Enable == TEMP_ENABLE)
 						StartTimer(T_DOS_PERIOD);
-					HumidifierAct.Nebulizer_state = OFF;
-					HumidifierAct.Pump_state = OFF;
-					NEBULIZER_OFF();
-					AIR_PUMP_OFF();
+//					HumidifierAct.Nebulizer_state = OFF;
+//					HumidifierAct.Pump_state = OFF;
+//					NEBULIZER_OFF();
+//					AIR_PUMP_OFF();
                     
 					count_dosing_period = 0;
 					count_humidifier_period = 0;
@@ -678,9 +680,9 @@ pippo1 = Process_Period;
 			
 			if (HumidifierAct.Riscaldatore_state == ON)
 				RISCALDATORE_ON();
-			else 
+			else {
 				RISCALDATORE_OFF();
-
+            }
             if ((HumidifierAct.Nebulizer_state == ON) && (HumidifierAct.Pump_state == OFF) && (HumidifierAct.Led_state == OFF) && (HumidifierAct.Riscaldatore_state == OFF))
                Status.level = HUMIDIFIER_NEBULIZER_ON_ST;
             else if ((HumidifierAct.Nebulizer_state == OFF) && (HumidifierAct.Pump_state == ON) && (HumidifierAct.Led_state == OFF) && (HumidifierAct.Riscaldatore_state == OFF))

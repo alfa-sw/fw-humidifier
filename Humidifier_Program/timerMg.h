@@ -90,9 +90,10 @@
 /* 14 */# define DELAY_LED 3000
 // Timeout on SPI TC72 Write Command: 200 msec
 /* 15 */# define DELAY_SPI_MEASUREMENT 100	
-// Waiting Temperature Sensor Reset Time: 2 msec
-/* 16 */# define DELAY_SPI_HARD_RESET 1	
-// Waiting Time in Error Status: 100 msec
+// Waiting Temperature Sensor Reset Time: 200 msec
+/* 16 *///# define DELAY_SPI_HARD_RESET 1	
+/* 16 */# define DELAY_SPI_HARD_RESET 100	
+ // Waiting Time in Error Status: 100 msec
 /* 17 */ # define DELAY_ERROR_STATUS 50	
 /* 17 */ //# define DELAY_ERROR_STATUS 5000	
  

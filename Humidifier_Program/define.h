@@ -99,13 +99,11 @@ do {                        \
 # define RISCALDATORE_OFF() \
 do {                        \
 	RISCALD = OFF;          \
-    RISCALD_FAN = OFF;       \
 } while (0)
 
 # define RISCALDATORE_ON()  \
 do {                        \
 	RISCALD = ON;           \
-    RISCALD_FAN = ON;       \
 } while (0)
 
 # define isColorCmdStop()  		  (HumidifierAct.command.stop)

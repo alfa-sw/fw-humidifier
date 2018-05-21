@@ -150,6 +150,9 @@ RAM_EXTERN unsigned long Process_Period;
 
 RAM_EXTERN unsigned char Humidifier_Enable;
 
-RAM_EXTERN unsigned long pippo, pippo1;
+RAM_EXTERN unsigned long pippo, pippo1, pippo2, pippo3;
 
 RAM_EXTERN unsigned short Start_Jump_Boot;
+
+RAM_EXTERN unsigned char Dos_Temperature_Enable;
+
