@@ -39,7 +39,9 @@ void SPI1_Initialize(void)
     // SPI1BRGL 1 = 1MHZ; 
     //SPI1BRGL = 0x0001;
     // SPI1BRGL = 125KHZ; 
-    SPI1BRGL = 0x008;
+    //SPI1BRGL = 0x008;
+    SPI1BRGL = 0x0C8; // 5KHz
+
     // SPITBFEN disabled; SPITUREN disabled; FRMERREN disabled; SRMTEN disabled; SPIRBEN disabled; BUSYEN disabled; SPITBEN disabled; SPIROVEN disabled; SPIRBFEN disabled; 
     SPI1IMSKL = 0x0000;
     // RXMSK 0; TXWIEN disabled; TXMSK 0; RXWIEN disabled; 
@@ -148,6 +150,7 @@ void SPI_Manager (void)
             // Write Read Temperature Command to TC72
             writeBuffer[0] = 0x02; // MSB = 0, ADDRESS = 0x02        
             Read_SPI_Command (writeBuffer, Read_res);
+
             // Clock output for other 3 bytes
             writeBuffer[0] = 0x00;        
             Read_SPI_Command (writeBuffer, Read_res);

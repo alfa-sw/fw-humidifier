@@ -65,7 +65,9 @@ void I2C1_Initialize(void)
     
     // Initialize the hardware
     // Baud Rate Generator Value: I2CBRG 18 --> Clock Frequency 400KHz   
-    I2C1BRG = 0x0012;
+//    I2C1BRG = 0x0012;
+    I2C1BRG = 0x090; // 50KHz
+
     // ACKEN disabled; STRICT disabled; STREN disabled; GCEN disabled; SMEN disabled; DISSLW enabled; I2CSIDL disabled; ACKDT Sends ACK; SCLREL Holds; RSEN disabled; A10M 7 Bit; PEN disabled; RCEN disabled; SEN disabled; I2CEN enabled; 
     I2C1CONL = 0x8000;
     // BCL disabled; D_nA disabled; R_nW disabled; P disabled; S disabled; I2COV disabled; IWCOL disabled; 

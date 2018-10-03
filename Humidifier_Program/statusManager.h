@@ -72,4 +72,5 @@ extern int AcquireHumidityTemperature(unsigned char Hum_Type, unsigned long *Tem
 extern void HumidifierProcessCalculation(unsigned long Multiplier, unsigned long RH, unsigned long Temperature, 
 														unsigned long *Period, unsigned long *Pump_Duration, unsigned long *Neb_Duration);
 extern void jump_to_boot(void);
+extern void impostaDuty(char val);
 #endif

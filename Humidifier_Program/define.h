@@ -26,6 +26,9 @@
 
 #define HUMIDIFIER_TYPE_0	0 // SENSIRION SHT31
 #define HUMIDIFIER_TYPE_1	1 // NO SENSOR - Process Humidifier 1.0
+#define HUMIDIFIER_TYPE_2	2 // NO SENSOR - Process THOR
+
+#define HUMIDIFIER_PWM      100 // WATER RESISTANCE for THOR process
 
 #define HUMIDIFIER_PERIOD   1200 // 20 min
 #define HUMIDIFIER_DURATION 2    // 2 sec

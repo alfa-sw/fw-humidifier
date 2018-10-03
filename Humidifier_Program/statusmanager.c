@@ -34,7 +34,6 @@ void initStatusManager(void)
 	Status.level = HUMIDIFIER_INIT_ST;
 }
 
-
 /*
 *//*=====================================================================*//**
 **      @brief Initialization humidifier parameters
@@ -51,6 +50,8 @@ void initParam(void)
 	HumidifierAct.Humidifier_Enable = HUMIDIFIER_DISABLE;
     // Humidifier Type
 	HumidifierAct.Humdifier_Type = HUMIDIFIER_TYPE_0;
+    // PWM for THOR process
+    HumidifierAct.Humidifier_PWM = HUMIDIFIER_PWM;
 	// Starting Humidifier Period
     HumidifierAct.Humidifier_Period = HUMIDIFIER_PERIOD;
 	// Humidifier Multiplier
@@ -89,6 +90,8 @@ void initParam(void)
     TC72_Temperature = 250;
     // At program start up Dosing Temperature process disabled
     HumidifierAct.Dosing_Temperature = 32768;
+    
+    impostaDuty(-1);
 }
 
 /*
@@ -103,7 +106,8 @@ void initParam(void)
 */
 void StopHumidifier(void)
 {
-	NEBULIZER_OFF();
+	impostaDuty(-1);
+    NEBULIZER_OFF();
 	AIR_PUMP_OFF();
     RISCALDATORE_OFF();
 //	StopSensor();
@@ -128,7 +132,8 @@ int AnalyzeParam(void)
 	if ( (HumidifierAct.Humidifier_Enable != HUMIDIFIER_DISABLE) && (HumidifierAct.Humidifier_Enable != HUMIDIFIER_ENABLE) )
 		return FALSE;
     // Humidifier Type
-	else if ( (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_0) && (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_1) && (HumidifierAct.Humidifier_Enable == HUMIDIFIER_ENABLE) )
+	else if ( (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_0) && (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_1) && 
+              (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2) && (HumidifierAct.Humidifier_Enable == HUMIDIFIER_ENABLE) )
 		return FALSE;
 	// Humidifier Multiplier
     else if ( (HumidifierAct.Humidifier_Multiplier > MAX_HUMIDIFIER_MULTIPLIER) && (HumidifierAct.Humidifier_Enable == HUMIDIFIER_ENABLE) )
@@ -152,10 +157,21 @@ int AnalyzeParam(void)
 	{
 		// 1sec = 500
 		Durata[T_HUM_CAP_OPEN_ON] = HumidifierAct.AutocapOpen_Duration * 500;	
-		// Initial Duration = 2 sec
-        Durata[T_HUM_CAP_CLOSED_ON] = HUMIDIFIER_DURATION * 500;	
-//        Process_Period = (HumidifierAct.Humidifier_Period);
-Process_Period = 15;
+        Process_Period = (HumidifierAct.Humidifier_Period);
+        // NO SENSOR - Process Humidifier 1.0
+        if (HumidifierAct.Humdifier_Type == HUMIDIFIER_TYPE_1)
+            // Initial Duration
+            Durata[T_HUM_CAP_CLOSED_ON] = HumidifierAct.Humidifier_Multiplier * 500;
+        // NO SENSOR - THOR process
+        else if (HumidifierAct.Humdifier_Type == HUMIDIFIER_TYPE_2)
+            // Initial Duration
+            Durata[T_HUM_CAP_CLOSED_ON] = HumidifierAct.Humidifier_Multiplier * 500;
+        else
+            // Initial Duration = 2 sec
+            Durata[T_HUM_CAP_CLOSED_ON] = HUMIDIFIER_DURATION * 500;	
+
+pippo =  Durata[T_HUM_CAP_CLOSED_ON];
+
 		return TRUE;
 	}		
 }
@@ -242,7 +258,9 @@ void humidifierStatusManager(void)
 //            HumidifierAct.Riscaldatore_state = OFF;
 			if ( ((HumidifierAct.Humidifier_Enable == HUMIDIFIER_ENABLE) && (HumidifierAct.Humdifier_Type == HUMIDIFIER_TYPE_0) && (Humidifier_Count_Disable_Err < HUMIDIFIER_MAX_ERROR_DISABLE))
                                                             ||
-                 ((HumidifierAct.Humidifier_Enable == HUMIDIFIER_ENABLE) && (HumidifierAct.Humdifier_Type == HUMIDIFIER_TYPE_1)) )
+                 ((HumidifierAct.Humidifier_Enable == HUMIDIFIER_ENABLE) && (HumidifierAct.Humdifier_Type == HUMIDIFIER_TYPE_1)) 
+                                                            ||
+                 ((HumidifierAct.Humidifier_Enable == HUMIDIFIER_ENABLE) && (HumidifierAct.Humdifier_Type == HUMIDIFIER_TYPE_2)) )
             {
 				Humidifier_Enable = TRUE;
 				Status.step = STEP_0;
@@ -360,17 +378,29 @@ void humidifierStatusManager(void)
 					if (HumidifierAct.Humidifier_Multiplier == 1000)
 					{
 						HumidifierAct.Nebulizer_state = ON;
-						NEBULIZER_ON();
-						HumidifierAct.Pump_state = ON;
-						AIR_PUMP_ON();
+						if (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2) {
+                            NEBULIZER_ON();
+    						HumidifierAct.Pump_state = ON;
+        					AIR_PUMP_ON();                            
+                        }    
+                        // THOR Process
+                        else
+                        // Nebulizer ON with PWM
+                            impostaDuty(HumidifierAct.Humidifier_PWM);						
 					}
 					// Multiplier = 0 --> Punp and Nebulizer always OFF
 					else if (HumidifierAct.Humidifier_Multiplier == 0)
 					{
 						HumidifierAct.Nebulizer_state = OFF;
-						NEBULIZER_OFF();
-						HumidifierAct.Pump_state = OFF;
-						AIR_PUMP_OFF();
+                        if (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2) 
+                            NEBULIZER_OFF();                        
+                        // THOR Process
+                        else
+                            // Nebulizer OFF
+                            impostaDuty(-1);
+                        
+    					HumidifierAct.Pump_state = OFF;
+        				AIR_PUMP_OFF();                                                    
 					}
 					else
 					{	
@@ -388,7 +418,13 @@ void humidifierStatusManager(void)
 									count_humidifier_period_closed = 0;
 									// Only NEBULIZER is ON at the beginning
 									HumidifierAct.Nebulizer_state = ON;
-									NEBULIZER_ON();
+									if (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2)
+                                        NEBULIZER_ON();
+                                    // THOR Process
+                                    else
+                                        // Nebulizer ON with PWM
+                                        impostaDuty(HumidifierAct.Humidifier_PWM);
+
 									HumidifierAct.Pump_state = OFF;
 									AIR_PUMP_OFF();
 									Status.step = STEP_2;                                    
@@ -398,17 +434,30 @@ void humidifierStatusManager(void)
 									// Check Duration: only NEBULIZER is ON
 									if ( (StatusTimer(T_HUM_CAP_CLOSED_ON) == T_ELAPSED) && (HumidifierAct.Pump_state == OFF) )
 									{
-										StopTimer(T_HUM_CAP_CLOSED_ON);
-                                        StartTimer(T_HUM_CAP_CLOSED_ON);
-										HumidifierAct.Pump_state = ON;
-										AIR_PUMP_ON();	
+										StopTimer(T_HUM_CAP_CLOSED_ON);                                        
+										if (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2) {
+                                            StartTimer(T_HUM_CAP_CLOSED_ON);
+                                            HumidifierAct.Pump_state = ON;
+        									AIR_PUMP_ON();
+    									}
+                                        // THOR Process
+                                        else {
+    										HumidifierAct.Nebulizer_state = OFF;
+                                            // Nebulzer OFF
+                                            impostaDuty(-1);
+                                        }
 									}
 									// Check Duration: both NEBULIZER and PUMP are ON
                                     else if ( (StatusTimer(T_HUM_CAP_CLOSED_ON) == T_ELAPSED) && (HumidifierAct.Pump_state == ON) ) 
 									{
 										StopTimer(T_HUM_CAP_CLOSED_ON);
 										HumidifierAct.Nebulizer_state = OFF;
-										NEBULIZER_OFF();
+                                        if (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2)
+                                            NEBULIZER_OFF();
+                                        // THOR Process
+                                        else
+                                            // Nebulizer OFF
+                                            impostaDuty(-1);
 										HumidifierAct.Pump_state = OFF;
 										AIR_PUMP_OFF();	
 									}
@@ -431,20 +480,26 @@ pippo1 = Process_Period;
 												HumidifierAct.RH = RH;
 												HumidifierProcessCalculation(HumidifierAct.Humidifier_Multiplier,HumidifierAct.RH, HumidifierAct.Temperature, 
 													&Process_Period, &Process_Pump_Duration, &Process_Neb_Duration);
-Process_Period = 15;
+//Process_Period = 30;
 pippo = Process_Pump_Duration;
 pippo1 = Process_Period;
-                                                // 1sec = 500
-												Durata[T_HUM_CAP_CLOSED_ON] = Process_Pump_Duration;	
+                                                if (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2) {
+                                                    // 1sec = 500
+        											Durata[T_HUM_CAP_CLOSED_ON] = Process_Pump_Duration;	
+                                                    NEBULIZER_ON();
+                                                }
+                                                else {
+                                                    // 1sec = 500
+        											Durata[T_HUM_CAP_CLOSED_ON] = Process_Neb_Duration;	
+                                                    // Nebulizer ON with PWM
+                                                    impostaDuty(HumidifierAct.Humidifier_PWM);
+                                                }        
         										StopTimer(T_HUM_CAP_CLOSED_ON);
 												StartTimer(T_HUM_CAP_CLOSED_ON);
 												// Only NEBULIZER is ON at the beginning
                                                 HumidifierAct.Nebulizer_state = ON;
-												NEBULIZER_ON();
         										HumidifierAct.Pump_state = OFF;                                                
 											}
-                                            
-                                            
 											else
 											{	
 //                                                StopTimer(T_HUM_CAP_CLOSED_PERIOD);
@@ -470,15 +525,27 @@ pippo1 = Process_Period;
 								if (HumidifierAct.AutocapOpen_Period == 0)
 								{
 									HumidifierAct.Nebulizer_state = ON;
-									NEBULIZER_ON();
-									HumidifierAct.Pump_state = ON;
-									AIR_PUMP_ON();
+                                    if (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2) {
+                                        NEBULIZER_ON();
+                                        HumidifierAct.Pump_state = ON;
+                                        AIR_PUMP_ON();                                    
+                                    }    
+                                    // THOR Process
+                                    else
+                                        // Nebulizer ON with PWM
+                                        impostaDuty(HumidifierAct.Humidifier_PWM);
 								}
 								// Duration = 0 AND Period != 0 -> Punp and Nebulizer always OFF
 								else if (HumidifierAct.AutocapOpen_Duration == 0)
 								{
 									HumidifierAct.Nebulizer_state = OFF;
-									NEBULIZER_OFF();
+                                    if (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2)
+                                        NEBULIZER_OFF();
+                                    // THOR Process
+                                    else
+                                        // Nebulizer OFF
+                                        impostaDuty(-1);
+                                    
 									HumidifierAct.Pump_state = OFF;
 									AIR_PUMP_OFF();
 								}
@@ -494,9 +561,16 @@ pippo1 = Process_Period;
 										StartTimer(T_HUM_CAP_OPEN_PERIOD);
 										count_humidifier_period = 0;
 										HumidifierAct.Nebulizer_state = ON;
-										NEBULIZER_ON();
-										HumidifierAct.Pump_state = ON;
-										AIR_PUMP_ON();
+                                        if (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2) {
+                                            NEBULIZER_ON();
+    										HumidifierAct.Pump_state = ON;
+        									AIR_PUMP_ON();
+                                        }
+                                        // THOR Process
+                                        else
+                                            // Nebulizer ON with PWM
+                                            impostaDuty(HumidifierAct.Humidifier_PWM);
+                                        
 										Status.step = STEP_1;
 									}
 									else if (Status.step == STEP_1)
@@ -506,7 +580,12 @@ pippo1 = Process_Period;
 										{
 											StopTimer(T_HUM_CAP_OPEN_ON);
 											HumidifierAct.Nebulizer_state = OFF;
-											NEBULIZER_OFF();
+                                            if (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2)
+                                                NEBULIZER_OFF();
+                                            // THOR Process
+                                            else
+                                                // Nebulizer OFF
+                                                impostaDuty(-1);
 
 											HumidifierAct.Pump_state = OFF;
 											AIR_PUMP_OFF();	
@@ -522,9 +601,15 @@ pippo1 = Process_Period;
 												StartTimer(T_HUM_CAP_OPEN_ON);
 												count_humidifier_period = 0;
 												HumidifierAct.Nebulizer_state = ON;
-												NEBULIZER_ON();
-												HumidifierAct.Pump_state = ON;
-												AIR_PUMP_ON();
+                                                if (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2) {
+                                                    NEBULIZER_ON();
+            										HumidifierAct.Pump_state = ON;
+        											AIR_PUMP_ON();
+    											}                                    
+                                                // THOR Process
+                                                else
+                                                    // Nebulizer ON with PWM
+                                                    impostaDuty(HumidifierAct.Humidifier_PWM);                                                                                                
 											}
 										}										
 									}							
@@ -573,7 +658,12 @@ pippo1 = Process_Period;
                             else if (HumidifierAct.Dosing_Temperature <= (unsigned long)(HumidifierAct.Heater - HumidifierAct.Heater_Hysteresis) )
                             {
                                 HumidifierAct.Riscaldatore_state = ON;          
-                                RISCALDATORE_ON();
+                                if (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2)
+                                    NEBULIZER_ON();
+                                // THOR Process
+                                else
+                                // Nebulizer ON with PWM
+                                    impostaDuty(HumidifierAct.Humidifier_PWM);
                             }
                         }    
                         else
@@ -673,10 +763,22 @@ pippo1 = Process_Period;
 			else 
 				AIR_PUMP_OFF();
 			
-			if (HumidifierAct.Nebulizer_state == ON)
-				NEBULIZER_ON();
-			else 
-				NEBULIZER_OFF();
+			if (HumidifierAct.Nebulizer_state == ON) {
+				if (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2)
+                    NEBULIZER_ON();
+                // THOR Process
+                else
+                // Nebulizer ON with PWM
+                    impostaDuty(HumidifierAct.Humidifier_PWM);
+			}
+            else {
+                if (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2)
+                    NEBULIZER_OFF();
+                // THOR Process
+                else
+                    // Nebulizer OFF
+                    impostaDuty(-1);
+			}
 			
 			if (HumidifierAct.Riscaldatore_state == ON)
 				RISCALDATORE_ON();
@@ -1042,6 +1144,7 @@ int AcquireHumidityTemperature(unsigned char Temp_Type, unsigned long *Temp, uns
 
 		// NO SENSOR
 		case 1:            
+		case 2:            
             *Temp = 32768;
             *Humidity = 32768;        
             return TRUE;
@@ -1085,6 +1188,16 @@ void HumidifierProcessCalculation(unsigned long Multiplier, unsigned long RH, un
         // 1 = 2msec
         *Neb_Duration = HumidifierAct.Humidifier_Multiplier * 500;
     }
+    // NO SENSOR - THOR process
+    else if (HumidifierAct.Humdifier_Type == HUMIDIFIER_TYPE_2)
+    {
+        // 1 = 1sec
+        *Period = HumidifierAct.Humidifier_Period;  
+        // 1 = 2msec
+        *Pump_Duration = 0;  
+        // 1 = 2msec
+        *Neb_Duration = HumidifierAct.Humidifier_Multiplier * 500;
+    } 
     // SENSOR SHT31 - Process Humidifier 2.0
     else
     {    
@@ -1191,7 +1304,27 @@ void HumidifierProcessCalculation(unsigned long Multiplier, unsigned long RH, un
 
 /*
 *//*=====================================================================*//**
-**      @brief jump_to_boott
+**      @brief Duty Cycle
+**
+**      @param 
+**
+**      @retval void
+**					 
+**
+*//*=====================================================================*//**
+*/
+void impostaDuty(char val)
+{
+	if (val > 10)
+		val = 0;
+	IEC0bits.T1IE = 0;
+	dutyPWM = val;
+	IEC0bits.T1IE = 1;    
+}
+
+/*
+*//*=====================================================================*//**
+**      @brief jump_to_boot
 **
 **      @param 
 **

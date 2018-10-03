@@ -10,6 +10,12 @@
 *//*=====================================================================*//**
 */
 
+#include "statusmanager.h"
+#include "serialcom.h"
+#include "ram.h"
+#include "gestio.h"
+#include "define.h"
+
 #ifndef _TIMER_MG_H
 #define _TIMER_MG_H
 
@@ -93,16 +99,16 @@
 // Waiting Temperature Sensor Reset Time: 200 msec
 /* 16 *///# define DELAY_SPI_HARD_RESET 1	
 /* 16 */# define DELAY_SPI_HARD_RESET 100	
- // Waiting Time in Error Status: 100 msec
-/* 17 */ # define DELAY_ERROR_STATUS 50	
-/* 17 */ //# define DELAY_ERROR_STATUS 5000	
+ // Waiting Time in Error Status: 1000 msec
+/* 17 */ //# define DELAY_ERROR_STATUS 50	
+/* 17 */ # define DELAY_ERROR_STATUS 500	
  
 typedef struct {
   signed char Flg;
-  unsigned short InitBase;
+  unsigned long InitBase;
 } timerstype;
 
-extern unsigned short TimeBase;
+extern unsigned long TimeBase;
 extern timerstype TimStr[N_TIMERS];
 extern unsigned long Durata[N_TIMERS];
 extern void TimerMg (void);

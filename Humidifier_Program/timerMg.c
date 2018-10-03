@@ -14,15 +14,18 @@
 #include "p24FJ64GA704.h"
 #include "TimerMg.h"
 #include "mem.h"
+#include "gestio.h"
+#include "define.h"
+
 /*====== MACRO LOCALI ====================================================== */
 
 /*====== TIPI LOCALI ======================================================== */
 
 /*====== VARIABILI LOCALI =================================================== */
-static unsigned short MonTimeBase;
+static unsigned long MonTimeBase;
 
 /*====== VARIABILI GLOBALI =================================================== */
-unsigned short TimeBase;
+unsigned long TimeBase;
 
 timerstype TimStr[N_TIMERS];
 
@@ -175,9 +178,19 @@ signed char StatusTimer(unsigned char Timer)
 //void __attribute__((__interrupt__,auto_psv)) _T1Interrupt(void)
 void T1_InterruptHandler(void)
 {
-	IFS0bits.T1IF = 0;                          //Clear Timer 1 Interrupt Flag
-
+	IFS0bits.T1IF = 0;  //Clear Timer 1 Interrupt Flag
   	++ TimeBase ;
+    
+    if (HumidifierAct.Humdifier_Type == HUMIDIFIER_TYPE_2) {
+        contaDuty++;
+        if (contaDuty >= 10)
+            contaDuty = 0;
+
+        if (contaDuty < dutyPWM)
+            NEBULIZER_ON();        
+        else
+            NEBULIZER_OFF();        
+    }    
 }
 
 

@@ -110,6 +110,7 @@ typedef struct
   
   unsigned char Humidifier_Enable;
   unsigned char Humdifier_Type;
+  unsigned char Humidifier_PWM;
   unsigned long Humidifier_Period;
   unsigned long Humidifier_Multiplier;
   unsigned long AutocapOpen_Duration;

@@ -533,6 +533,13 @@ void DecodeHumidifierMessage(uartBuffer_t *rxBuffer, unsigned char slave_id)
 	HumidifierAct.Humidifier_Enable = rxBuffer->buffer[idx ++];
     // Humidifier Type
 	HumidifierAct.Humdifier_Type = rxBuffer->buffer[idx ++];
+    // THOR process
+    if (HumidifierAct.Humdifier_Type > 1) {
+       if (HumidifierAct.Humdifier_Type > 100)
+           HumidifierAct.Humdifier_Type = 100;
+       HumidifierAct.Humidifier_PWM = (unsigned char)(HumidifierAct.Humdifier_Type / 10);
+       HumidifierAct.Humdifier_Type = HUMIDIFIER_TYPE_2;
+    }
 	// Starting Humidifier Period
     tmpWord.byte[0] = rxBuffer->buffer[idx ++];
     tmpWord.byte[1] = rxBuffer->buffer[idx ++];

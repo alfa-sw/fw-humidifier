@@ -156,3 +156,6 @@ RAM_EXTERN unsigned short Start_Jump_Boot;
 
 RAM_EXTERN unsigned char Dos_Temperature_Enable;
 
+RAM_EXTERN char dutyPWM;
+RAM_EXTERN char contaDuty;
+
