@@ -153,11 +153,9 @@ void Pippo(void)
    for (a = 0; a < 10; a++){}
 }
 
-
-
 int main(void)
 {
-    uint8_t stato_led, pips, pips1, pips2;
+    uint8_t stato_led;
 
     // Manually generated
 // -----------------------------------------------------------------------------        
@@ -259,9 +257,6 @@ int main(void)
 		serialCommManager();
         I2C_Manager();
         SPI_Manager();
-        pips1 = 1;
-        pips2 = 2;        
-        pips = pips1 + pips2;
         // LED management
         // ---------------------------------------------------------------------
         if (isColorCmdSetupOutput() )

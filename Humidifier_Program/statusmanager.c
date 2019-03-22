@@ -411,9 +411,7 @@ void humidifierStatusManager(void)
 							case AUTOCAP_CLOSED:
 								if ( (Status.step == STEP_0) || (Status.step == STEP_1))
 								{	
-									StopTimer(T_HUM_CAP_CLOSED_ON);
 									StopTimer(T_HUM_CAP_CLOSED_PERIOD);
-									StartTimer(T_HUM_CAP_CLOSED_ON);
 									StartTimer(T_HUM_CAP_CLOSED_PERIOD);
 									count_humidifier_period_closed = 0;
 									// Only NEBULIZER is ON at the beginning
@@ -427,6 +425,15 @@ void humidifierStatusManager(void)
 
 									HumidifierAct.Pump_state = OFF;
 									AIR_PUMP_OFF();
+                                    if ( (Status.step == STEP_0) || ((Status.step == STEP_1) && (HumidifierAct.Humdifier_Type != HUMIDIFIER_TYPE_2)) )
+                                    {
+    									StopTimer(T_HUM_CAP_CLOSED_ON);
+                                        StartTimer(T_HUM_CAP_CLOSED_ON);
+    								}
+                                    // If Humidifier Type = THOR AND previously Autocap was Open, new cycle with Autocap Closed starts with PAUSE 
+                                    else
+    									StopTimer(T_HUM_CAP_CLOSED_ON);
+                                        
 									Status.step = STEP_2;                                    
 								}
 								else if (Status.step == STEP_2)
