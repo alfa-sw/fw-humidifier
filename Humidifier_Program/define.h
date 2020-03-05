@@ -76,7 +76,7 @@
 #define DOSING_TEMPERATURE_MAX_ERROR   5
 
 #define HUMIDIFIER_MAX_ERROR_DISABLE          20
-#define DOSING_TEMPERATURE_MAX_ERROR_DISABLE  20
+#define DOSING_TEMPERATURE_MAX_ERROR_DISABLE  10
 // -----------------------------------------------------------------------------
 
 # define NEBULIZER_OFF()	\
@@ -94,6 +94,7 @@ do {                        \
 	PUMP = OFF;             \
 } while (0)
 
+
 # define AIR_PUMP_ON()      \
 do {                        \
 	PUMP = ON;              \
@@ -102,7 +103,14 @@ do {                        \
 # define RISCALDATORE_OFF() \
 do {                        \
 	RISCALD = OFF;          \
+	RISCALD_FAN = OFF;      \
 } while (0)
+/*
+# define RISCALDATORE_ON()     \
+do {                        \
+	RISCALD = ON;             \
+} while (0)
+*/
 
 # define RISCALDATORE_ON()  \
 do {                        \

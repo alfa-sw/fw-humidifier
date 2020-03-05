@@ -24,7 +24,7 @@
 #include "mem.h"
 
 #define _UART_DE LATBbits.LATB0 // UART_DE
-#define SW_VERSION (0x30100)
+#define SW_VERSION (0x30102)
 
 const unsigned short /*__attribute__((space(psv), section ("CRCTable")))*/ CRC_TABLE[256] = {
   0x0,0x0C0C1,0x0C181,0x140,0x0C301,0x3C0,0x280,0x0C241,
@@ -526,6 +526,7 @@ void DecodeHumidifierMessage(uartBuffer_t *rxBuffer, unsigned char slave_id)
   case CONTROLLO_PRESENZA:
     HumidifierAct.Autocap_Status = rxBuffer->buffer[idx ++];
 //HumidifierAct.Autocap_Status = AUTOCAP_CLOSED;
+    Machine_Motors = rxBuffer->buffer[idx ++];
     break;
 
   case SETUP_PARAMETRI_UMIDIFICATORE:  

@@ -66,7 +66,8 @@
    /* 14 */T_LED_DURATION_ON,
    /* 15 */T_SPI_MEASUREMENT, 
    /* 16 */T_SPI_HARD_RESET,   
-   /* 17 */T_ERROR_STATUS,              
+   /* 17 */T_ERROR_STATUS, 
+   /* 18 */T_WAIT_SPI_COMMAND,
    N_TIMERS
  };
 
@@ -102,7 +103,8 @@
  // Waiting Time in Error Status: 1000 msec
 /* 17 */ //# define DELAY_ERROR_STATUS 50	
 /* 17 */ # define DELAY_ERROR_STATUS 500	
- 
+// Tempo di attesa lettura Byte dalla SPI 1"
+/* 18 */# define WAIT_SPI_COMMAND 500
 typedef struct {
   signed char Flg;
   unsigned long InitBase;

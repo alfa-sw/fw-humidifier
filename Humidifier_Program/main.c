@@ -227,7 +227,7 @@ int main(void)
 	DigInMSwitch.Bit.StatusType7 = 0;
 
   	slave_id = 0x00FF & DigInMSwitch.byte;	
-	//slave_id = 43;  
+	//slave_id = 43; 
 	}
 #else
   // if NON HARDCODED address is defined and BootLoader is present, Slave Addres is read from BootLoader (= from dip switches)
@@ -241,7 +241,7 @@ int main(void)
 #else
 #endif	
 
-    StartTimer(T_LED_DURATION_ON);
+//    StartTimer(T_LED_DURATION_ON);
     StartTimer(T_ERROR_STATUS);
     while (1)
 	{
@@ -249,7 +249,7 @@ int main(void)
         /* kicking the dog ;-) */
         ClrWdt();
 #else
-#endif			
+#endif			        
         // main loop
 		humidifierStatusManager();
 		TimerMg();
@@ -284,9 +284,19 @@ int main(void)
                     HumidifierAct.command.cmd = CMD_IDLE;
                 }
             }	            
-        }        
+        }
+        
         // LED ON - OFF
-       if (StatusTimer(T_LED_DURATION_ON) == T_ELAPSED)
+		if (HumidifierAct.Pump_state == ON) {
+            LED = OFF;
+            HumidifierAct.Led_state = ON;                  
+        }            
+        else {
+            LED = ON;
+            HumidifierAct.Led_state = OFF;                              
+        }
+            
+        if (StatusTimer(T_LED_DURATION_ON) == T_ELAPSED)
         {
             StopTimer(T_LED_DURATION_ON);
             StartTimer(T_LED_DURATION_ON);

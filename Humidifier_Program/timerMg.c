@@ -46,7 +46,8 @@ unsigned long Durata[N_TIMERS] = {
    /* 14 */DELAY_LED,  
    /* 15 */DELAY_SPI_MEASUREMENT, 
    /* 16 */DELAY_SPI_HARD_RESET,	
-   /* 17 */DELAY_ERROR_STATUS	        
+   /* 17 */DELAY_ERROR_STATUS,
+   /* 18 */WAIT_SPI_COMMAND
 };
 
 void InitTMR(void)
@@ -187,9 +188,11 @@ void T1_InterruptHandler(void)
             contaDuty = 0;
 
         if (contaDuty < dutyPWM)
-            NEBULIZER_ON();        
+            //NEBULIZER_ON();
+            NEB = ON;
         else
-            NEBULIZER_OFF();        
+            //NEBULIZER_OFF();
+            NEB = OFF;
     }    
 }
 

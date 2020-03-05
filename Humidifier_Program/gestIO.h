@@ -28,7 +28,7 @@
 #define SW6 PORTCbits.RC5  // Input Dip Switch 6
 
 #define RISCALD_FAN	PORTCbits.RC8  // Output FAN
-#define RISCALD PORTCbits.RC9  // Output HEATING 
+#define RISCALD PORTCbits.RC9  // Output HEATER 
 
 #define AN0  PORTAbits.RA0 // Input Analog 0
 #define AN1	 PORTAbits.RA1 // Input Analog 1

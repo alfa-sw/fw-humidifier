@@ -116,8 +116,8 @@ void initIO(void)
 	TRISCbits.TRISC4 = INPUT; // Dip Switch 5
 	TRISCbits.TRISC5 = INPUT; // Dip Switch 6
 
-    TRISCbits.TRISC8 = OUTPUT; // HEATER
-	TRISCbits.TRISC9 = OUTPUT; // FAN
+    TRISCbits.TRISC8 = OUTPUT; // FAN
+	TRISCbits.TRISC9 = OUTPUT; // HEATER
 
 	TRISAbits.TRISA0 = INPUT; // AN0
 	TRISAbits.TRISA1 = INPUT; // AN1

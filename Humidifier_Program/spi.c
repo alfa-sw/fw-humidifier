@@ -76,16 +76,6 @@ void Write_SPI_Command(uint8_t *pTransmitData)
     SPI1BUFL = *(pTransmitData+1);
 }  
 
-void Read_SPI_Command(uint8_t *pTransmitData, uint8_t *pReceiveData)
-{
-    // Send first Byte
-    while( SPI1STATLbits.SPITBF == TRUE) {}
-      SPI1BUFL = *(pTransmitData);
-    // Read first Byte
-    while ( SPI1STATLbits.SPIRBE == TRUE) {}
-    *(pReceiveData) = SPI1BUFL;
-}
-
 /*
 *//*=====================================================================*//**
 **      @brief Updates Temperature TC72 Acquisition
@@ -99,6 +89,7 @@ void Read_SPI_Command(uint8_t *pTransmitData, uint8_t *pReceiveData)
 void SPI_Manager (void)
 {
     static uint8_t Status_SPI = SPI_IDLE;
+    static uint8_t Status_Step_SPI = STEP_0;    
     uint8_t Read_res[1];
     uint16_t TC72_Raw_Temperature;     
     uint8_t writeBuffer[2];
@@ -141,35 +132,194 @@ void SPI_Manager (void)
                 Read_results[0] = 0x00;
                 Read_results[1] = 0x00;
                 Read_results[2] = 0x00 ;       
-                Status_SPI = SPI_READ_RESULTS;                          
+                Status_SPI = SPI_READ_RESULTS;  
+                Status_Step_SPI = STEP_0;
             }
         break;
 
         // Read Temperature 
         case SPI_READ_RESULTS:
-            // Write Read Temperature Command to TC72
-            writeBuffer[0] = 0x02; // MSB = 0, ADDRESS = 0x02        
-            Read_SPI_Command (writeBuffer, Read_res);
+           switch (Status_Step_SPI) {
+                case STEP_0:
+                    // Write Read Temperature Command to TC72
+                    writeBuffer[0] = 0x02; // MSB = 0, ADDRESS = 0x02        
+                    // Send first Byte
+                    while(SPI1STATLbits.SPITBF == TRUE) {}    
+                    SPI1BUFL = (uint8_t)writeBuffer[0];
+                    StartTimer(T_WAIT_SPI_COMMAND);
+                    Status_Step_SPI++;   
+                break;
 
-            // Clock output for other 3 bytes
-            writeBuffer[0] = 0x00;        
-            Read_SPI_Command (writeBuffer, Read_res);
-            Read_SPI_Command (writeBuffer, Read_res);
-            Read_SPI_Command (writeBuffer, Read_res);            
-            Read_results[0] = Read_res[0];
-            Read_SPI_Command (writeBuffer, Read_res);            
-            Read_results[1] = Read_res[0]>>6;
-            Read_SPI_Command (writeBuffer, Read_res);            
-            Read_results[2] = Read_res[0];
-            if (Read_results[2] != 0x04) { 
-                Sensor_Temp_Measurement_Error = TRUE;
-                Status_SPI = SPI_HARD_RESET;          
-            }
-            else 
-            {
-                Sensor_Temp_Measurement_Error = FALSE;
-                Status_SPI = SPI_CALCULATE_TEMPERATURE;          
-            }
+                case STEP_1:
+                    // Read first Byte (SPIRBE valid in Enhanced Buffer Mode)
+                    while (SPI1STATLbits.SPIRBE == TRUE) {
+                        if (StatusTimer(T_WAIT_SPI_COMMAND) == T_ELAPSED) {
+                            StopTimer(T_WAIT_SPI_COMMAND);
+                            Sensor_Temp_Measurement_Error = TRUE;
+                            Status_SPI = SPI_HARD_RESET;                                      
+                            return;
+                        }
+                        else
+                            return;
+                    }
+                    StopTimer(T_WAIT_SPI_COMMAND); 
+                    StartTimer(T_WAIT_SPI_COMMAND);
+                    Read_res[0] = SPI1BUFL;
+                    Status_Step_SPI++; 
+                break;
+
+                case STEP_2:
+                    // Clock output for other 3 bytes
+                    writeBuffer[0] = 0x00;        
+                    // Send first Byte
+                    while(SPI1STATLbits.SPITBF == TRUE) {}    
+                    SPI1BUFL = (uint8_t)writeBuffer[0];
+                    StartTimer(T_WAIT_SPI_COMMAND);
+                    Status_Step_SPI++;                           
+                break;
+
+                case STEP_3:
+                    // Read first Byte (SPIRBE valid in Enhanced Buffer Mode)
+                    while (SPI1STATLbits.SPIRBE == TRUE) {
+                        if (StatusTimer(T_WAIT_SPI_COMMAND) == T_ELAPSED) {
+                            StopTimer(T_WAIT_SPI_COMMAND);
+                            Sensor_Temp_Measurement_Error = TRUE;
+                            Status_SPI = SPI_HARD_RESET;                                      
+                            return;
+                        }
+                        else
+                            return;
+                    }
+                    StopTimer(T_WAIT_SPI_COMMAND); 
+                    StartTimer(T_WAIT_SPI_COMMAND);
+                    Read_res[0] = SPI1BUFL;
+                    Status_Step_SPI++;                         
+                break;
+
+                case STEP_4:
+                    // Clock output for other 3 bytes
+                    writeBuffer[0] = 0x00;        
+                    // Send first Byte
+                    while(SPI1STATLbits.SPITBF == TRUE) {}    
+                    SPI1BUFL = (uint8_t)writeBuffer[0];
+                    StartTimer(T_WAIT_SPI_COMMAND);
+                    Status_Step_SPI++;                                                   
+                break;
+
+                case STEP_5:
+                    // Read first Byte (SPIRBE valid in Enhanced Buffer Mode)
+                    while (SPI1STATLbits.SPIRBE == TRUE) {
+                        if (StatusTimer(T_WAIT_SPI_COMMAND) == T_ELAPSED) {
+                            StopTimer(T_WAIT_SPI_COMMAND);
+                            Sensor_Temp_Measurement_Error = TRUE;
+                            Status_SPI = SPI_HARD_RESET;                                      
+                            return;
+                        }
+                        else
+                            return;
+                    }
+                    StopTimer(T_WAIT_SPI_COMMAND); 
+                    StartTimer(T_WAIT_SPI_COMMAND);
+                    Read_res[0] = SPI1BUFL;
+                    Status_Step_SPI++;                                                 
+                break;
+
+                case STEP_6:
+                    // Clock output for other 3 bytes
+                    writeBuffer[0] = 0x00;        
+                    // Send first Byte
+                    while(SPI1STATLbits.SPITBF == TRUE) {}    
+                    SPI1BUFL = (uint8_t)writeBuffer[0];
+                    StartTimer(T_WAIT_SPI_COMMAND);
+                    Status_Step_SPI++;                                                                           
+                break;
+
+                case STEP_7:
+                    // Read first Byte (SRXMPT valid in Enhanced Buffer Mode)
+                    while (SPI1STATLbits.SPIRBE == TRUE) {
+                        if (StatusTimer(T_WAIT_SPI_COMMAND) == T_ELAPSED) {
+                            StopTimer(T_WAIT_SPI_COMMAND);
+                            Sensor_Temp_Measurement_Error = TRUE;
+                            Status_SPI = SPI_HARD_RESET;                                      
+                            return;
+                        }
+                        else
+                            return;
+                    }
+                    StopTimer(T_WAIT_SPI_COMMAND); 
+                    StartTimer(T_WAIT_SPI_COMMAND);
+                    Read_res[0] = SPI1BUFL;
+                    Read_results[0] = Read_res[0];
+                    Status_Step_SPI++;                                                                         
+                break;
+
+                case STEP_8:
+                    // Clock output for other 3 bytes
+                    writeBuffer[0] = 0x00;        
+                    // Send first Byte
+                    while(SPI1STATLbits.SPITBF == TRUE) {}    
+                    SPI1BUFL = (uint8_t)writeBuffer[0];
+                    StartTimer(T_WAIT_SPI_COMMAND);
+                    Status_Step_SPI++;                                                                                                   
+                break;
+
+                case STEP_9:
+                    // Read first Byte (SRXMPT valid in Enhanced Buffer Mode)
+                    while (SPI1STATLbits.SPIRBE == TRUE) {
+                        if (StatusTimer(T_WAIT_SPI_COMMAND) == T_ELAPSED) {
+                            StopTimer(T_WAIT_SPI_COMMAND);
+                            Sensor_Temp_Measurement_Error = TRUE;
+                            Status_SPI = SPI_HARD_RESET;                                      
+                            return;
+                        }
+                        else
+                            return;
+                    }
+                    StopTimer(T_WAIT_SPI_COMMAND); 
+                    StartTimer(T_WAIT_SPI_COMMAND);
+                    Read_res[0] = SPI1BUFL;
+                    Read_results[1] = Read_res[0]>>6;
+                    Status_Step_SPI++;                                                                                             
+                break;
+
+                case STEP_10:
+                    // Clock output for other 3 bytes
+                    writeBuffer[0] = 0x00;        
+                    // Send first Byte
+                    while(SPI1STATLbits.SPITBF == TRUE) {}    
+                    SPI1BUFL = (uint8_t)writeBuffer[0];
+                    StartTimer(T_WAIT_SPI_COMMAND);
+                    Status_Step_SPI++;                                                                                                                           
+                break;
+
+                case STEP_11:
+                    // Read first Byte (SRXMPT valid in Enhanced Buffer Mode)
+                    while (SPI1STATLbits.SPIRBE == TRUE) {
+                        if (StatusTimer(T_WAIT_SPI_COMMAND) == T_ELAPSED) {
+                            StopTimer(T_WAIT_SPI_COMMAND);
+                            Sensor_Temp_Measurement_Error = TRUE;
+                            Status_SPI = SPI_HARD_RESET;                                      
+                            return;
+                        }
+                        else
+                            return;
+                    }
+                    StopTimer(T_WAIT_SPI_COMMAND); 
+                    Read_res[0] = SPI1BUFL;
+                    Read_results[2] = Read_res[0];
+                    if (Read_results[2] != 0x04) { 
+                        Sensor_Temp_Measurement_Error = TRUE;
+                        Status_SPI = SPI_HARD_RESET;          
+                    }
+                    else {                        
+                        Sensor_Temp_Measurement_Error = FALSE;
+                        Status_SPI = SPI_CALCULATE_TEMPERATURE;          
+                    }                    
+                break;
+                                
+                default:
+                break;    
+            }                           
         break;
 
         // Calculate Absolute values from Raw data
@@ -221,6 +371,9 @@ unsigned int TemperatureResetProcedure (unsigned char type)
 SPI1CON1L = 0x4000;                
                 StopTimer(T_SPI_HARD_RESET);
                 StartTimer(T_SPI_HARD_RESET);
+                SPI1BUFL = 0x0000;
+                SPI1BUFH = 0x0000;
+                SPI1_Initialize();
                 // TC72 Disabled
                 SPI_SS = 0;
                 reset_procedure = RESET_WAIT;
