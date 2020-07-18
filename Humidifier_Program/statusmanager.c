@@ -915,7 +915,8 @@ pippo1 = Process_Period;
 		// HUMIDIFIER_TOO LOW WATER LEVEL
 		// ------------------------------------------------------------------------------------------------------------
 		case HUMIDIFIER_TOO_LOW_WATER_LEVEL:
-			// Check for NEW ommmands receivd
+			StopHumidifier();
+            // Check for NEW ommmands receivd
 			// ------------------------------------------------------
 			if(isColorCmdStopProcess() )
 			{
