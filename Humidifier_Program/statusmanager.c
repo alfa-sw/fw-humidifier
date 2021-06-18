@@ -915,7 +915,14 @@ pippo1 = Process_Period;
 		// HUMIDIFIER_TOO LOW WATER LEVEL
 		// ------------------------------------------------------------------------------------------------------------
 		case HUMIDIFIER_TOO_LOW_WATER_LEVEL:
-			StopHumidifier();
+            impostaDuty(-1);
+            //NEBULIZER_OFF();
+            NEB = OFF;
+            //AIR_PUMP_OFF();
+            PUMP = OFF;
+            HumidifierAct.Nebulizer_state = OFF;
+            HumidifierAct.Pump_state = OFF;
+
             // Check for NEW ommmands receivd
 			// ------------------------------------------------------
 			if(isColorCmdStopProcess() )
@@ -927,16 +934,16 @@ pippo1 = Process_Period;
 			}
 			else if (isColorCmdSetupParam() ) 
 			{
-				if (AnalyzeParam() == TRUE)
+                if (AnalyzeParam() == TRUE)
                 {
                     NextStatus.level = HUMIDIFIER_READY_ST;				
                     Status.level = HUMIDIFIER_PAR_RX;
                 }    
-				else
-					Status.level = HUMIDIFIER_BAD_PAR_ERROR;					
+                else
+                Status.level = HUMIDIFIER_BAD_PAR_ERROR;					
 			
-            	HumidifierAct.command.cmd = CMD_IDLE;						
-            }	            
+                HumidifierAct.command.cmd = CMD_IDLE;						
+              }	            
 			else if (isColorCmdSetupOutput() )
 			{
 				StopTimer(T_DOS_PERIOD);
@@ -944,7 +951,7 @@ pippo1 = Process_Period;
 				if (AnalyzeSetupOutputs() == FALSE)
 					Status.level = HUMIDIFIER_BAD_PAR_ERROR;
 				else 
-                {
+                  {
                     Status.level = HUMIDIFIER_PAR_RX;
                     StopHumidifier();
                     NextStatus.level = HUMIDIFIER_NEBULIZER_PUMP_LED_RISCALDATORE_ON_ST;
